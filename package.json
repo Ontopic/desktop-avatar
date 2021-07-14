@@ -37,7 +37,7 @@
     "crypto-js": "^4.0.0",
     "emojilib": "^2.4.0",
     "isomorphic-git": "^1.8.2",
-    "kafjs": "^1.3.0",
+    "kafjs": "^1.5.0",
     "marked": "^2.0.7",
     "node-notifier": "^10.0.0",
     "puppeteer": "^10.0.0",
