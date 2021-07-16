@@ -2,12 +2,13 @@
 const chat = require('./chat.js')
 const setup = require('./setup.js')
 const backend = require('./backend.js')
+const data = require('./data.js')
 
 /*    understand/
  * the default entry point - starts the engine!
  */
 function start(log, store) {
-  welcome_1(() => setup_1(() => users_1(() => work_1())))
+  welcome_1(() => setup_1(() => users_1(() => startdb_1(() => work_1()))))
 
 
   function welcome_1(cb) {
@@ -32,6 +33,10 @@ function start(log, store) {
     })
   }
 
+  function startdb_1(cb) {
+    chat.startingDB(store, () => {
+      data.start(log, store, () => chat.dbStarted(store, cb))
+    })
   }
 
   function work_1(cb) {
