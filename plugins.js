@@ -187,7 +187,7 @@ function getChat(task, status, cb) {
       403: [
         `The site has refused to accept this user! Please see how you can get back on...`
       ],
-      423: [
+      424: [
         `The linkedin page has been updated. Please contact the developer.`
       ],
     }
