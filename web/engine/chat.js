@@ -8,11 +8,11 @@ function say(store, msg, cb) {
   setTimeout(() => cb && cb(), delay)
 }
 
-function greeting(store) {
-  say(store, dh.greeting(store.get("user.ui")))
+function greeting(store, cb) {
+  say(store, dh.greeting(store.get("user.ui")), cb)
 }
 
-function letsGetStarted({say}, cb) {
+function letsGetStarted(store, cb) {
   const ops = [
     [ "Let's get to work today :fire:", dh.smiley() ],
     [ "Let's get started! :+1:", ":sunglasses:" ],
@@ -20,7 +20,7 @@ function letsGetStarted({say}, cb) {
   ]
 
   const msgs = dh.oneOf(ops)
-  say({ chat: msgs[0], wait: 900 }, () => say(msgs[1], cb))
+  say(store, { chat: msgs[0], wait: 900 }, () => say(store, msgs[1], cb))
 }
 
 function checkingSetup() {
