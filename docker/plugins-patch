@@ -1,0 +1,15 @@
+diff --git a/plugins.js b/plugins.js
+index b242985..8c74916 100644
+--- a/plugins.js
++++ b/plugins.js
+@@ -581,8 +581,8 @@ function sent(tasks) {
+ }
+ 
+ function quit() {
+-  const { app } = require('electron')
+-  setTimeout(() => app.quit(), 1000)
++  const process = require('process')
++  setTimeout(() => process.exit(1), 1000)
+ }
+ 
+ module.exports = {

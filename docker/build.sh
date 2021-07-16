@@ -19,6 +19,10 @@ function copy_code() {
   rm preload-*.js
   rm dbg.js
 
+  echo patching...
+  patch < ../plugins-patch
+
+
   echo copying store reducer
   mkdir web
   cp ../../web/store.js ./web/
