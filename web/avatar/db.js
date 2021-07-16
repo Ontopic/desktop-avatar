@@ -92,7 +92,6 @@ function start(id, log, store) {
       case 400: return task_updt_status_1("fin", "failed/bad-task", task)
       case 401: return task_updt_status_1("fin", "failed/captcha", task)
       case 403: return task_updt_status_1("fin", "failed/bad-user", task)
-      case 423: return task_updt_status_1("fin", "failed/page-updated", task)
       case 424: return task_updt_status_1("fin", "failed/update-needed", task)
       case 500: return task_updt_status_1("fin", "failed/error", task)
       case 501: return task_updt_status_1("fin", "failed/no-plugin", task)
