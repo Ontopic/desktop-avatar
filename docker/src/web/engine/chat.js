@@ -261,6 +261,8 @@ module.exports = {
   checkingSetup,
   gettingPlugins,
   gotPlugins,
+  startingDB,
+  dbStarted,
   looksGood,
   gettingUsers,
   errGettingUsers,

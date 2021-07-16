@@ -1,60 +1,59 @@
 'use strict'
 const kc = require('../../kafclient.js')
+const ww = require('./ww.js')
 
 const DB = {}
 
-function start(id, log, store) {
-  if(DB[id]) return
+function start(log, store, cb) {
+  const users = store.getUsers()
+  start_1(0)
+
+  function start_1(ndx) {
+    if(ndx >= users.length) return cb()
+    startUserDB(users[ndx], log, store, () => start_1(ndx+1))
+  }
+}
+
+function startUserDB(user, log, store, cb) {
+  if(DB[user.id]) return
 
   const tasks = {}
-  DB[id] = tasks
+  DB[user.id] = tasks
 
-  const name = `User-${id}`
+  const name = `User-${user.id}`
+  log(`trace/engine/db/${name}`, "starting")
   const ctrl = kc.get(name, resp => {
     for(let i = 0;i < resp.length;i++) {
-      if(!process_1(resp[i])) {
-        console.error(resp[i])
+      if(!process(resp[i], tasks, log, store)) {
+        ERR(resp[i])
         ctrl.stop = true
         return
       }
     }
   }, (err, end) => {
-    if(err) log(`err/dbstart/${id}`, err)
+    if(err) return ERR(err)
     if(!end) return 10
-    for(let id in tasks) {
-      const task = tasks[id]
-      if(task.last !== 'closed') console.log(task)
-    }
+    run(user, log, store)
+    cb()
   })
 
-  function process_1(rec) {
-    if(rec.e === "task/new") return new_task_1(rec)
-    if(rec.e === "task/status") return task_status_1(rec)
-  }
+}
 
-  /*    understand/
-   * linkedin has urls of the form:
-   *    http://www.linkedin.com/profile/view?id=12345678&trk=tab_pro
-   * and
-   *    www.linkedin.com/in/paige-lorden-doepke-10142b22/
-   */
-  function get_lead_1(task) {
-    const u = task.data.linkedInURL
-    if(!u) return
-    const p = u.split('/').filter(v => v)
-    let v = p[p.length-1]
-    let ndx = v.indexOf("?")
-    if(ndx !== -1) {
-      let vv = v.substring(ndx+1)
-      ndx = vv.indexOf("id=")
-      if(ndx !== -1) {
-        v = vv.substring(ndx+"id=".length)
-        ndx = v.indexOf("&")
-        if(ndx !== -1) v = v.substring(0, ndx)
-      }
-    }
-    return v
-  }
+function run(user, log, store) {
+  const tasks = DB[user.id]
+  const name = `User-${user.id}`
+  log(`trace/engine/db/${name}`, "running")
+  kc.get(name, resp => {
+    resp.map(rec => process(rec, tasks, log, store))
+  }, err => {
+    if(err) return ERR(err)
+    return 500 + (Math.random() * 1500)
+  })
+}
+
+function process(rec, tasks, log, store) {
+  if(rec.e === "task/new") return new_task_1(rec)
+  if(rec.e === "task/status") return task_status_1(rec)
 
   function nsert_1(task, create) {
     const id = task.data && task.data.id
@@ -109,6 +108,7 @@ function start(id, log, store) {
     }
     inserted.last = msg
     if(inserted[k] < task.t) inserted[k] = task.t
+    store.event("status/add", task.data)
     return true
   }
 
@@ -119,10 +119,14 @@ function start(id, log, store) {
   function new_task_1(task) {
     const inserted = nsert_1(task, true)
     if(inserted.got < task.t) inserted.got = task.t
+    store.event("task/add", task.data)
     return true
   }
 }
 
+/*    understand/
+ * helper function to print out the DB in a readable format
+ */
 function dbStr(DB) {
   return JSON.stringify(DB, (k,v) => {
     if(k === "steps") return v.map(v => JSON.stringify(v).replace(/"/g, ""))
@@ -130,6 +134,19 @@ function dbStr(DB) {
   }, 2)
 }
 
+function ERR(msg) {
+  log("err/engine/db/start", msg)
+  chat.say(store, `**DATA ERROR**!
+Please check the data file:
+    ${name}
+for errors.
+
+More details should be available in the log file: ${log.getName()}
+
+`, () => ww.x.it())
+}
+
 module.exports = {
   start,
+  dbStr,
 }
