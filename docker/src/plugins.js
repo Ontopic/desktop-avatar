@@ -582,7 +582,7 @@ function sent(tasks) {
 
 function quit() {
   const process = require('process')
-  setTimeout(() => process.exit(1), 1000)
+  setTimeout(() => process.exit(1), 2000)
 }
 
 module.exports = {

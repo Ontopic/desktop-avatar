@@ -7,9 +7,9 @@ index b242985..8c74916 100644
  
  function quit() {
 -  const { app } = require('electron')
--  setTimeout(() => app.quit(), 1000)
+-  setTimeout(() => app.quit(), 2000)
 +  const process = require('process')
-+  setTimeout(() => process.exit(1), 1000)
++  setTimeout(() => process.exit(1), 2000)
  }
  
  module.exports = {

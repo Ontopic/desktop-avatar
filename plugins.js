@@ -582,7 +582,7 @@ function sent(tasks) {
 
 function quit() {
   const { app } = require('electron')
-  setTimeout(() => app.quit(), 1000)
+  setTimeout(() => app.quit(), 2000)
 }
 
 module.exports = {
