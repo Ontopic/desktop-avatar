@@ -253,7 +253,7 @@ async function linkedInPage(cfg, auth, browser) {
       const submitButton = "button.btn__primary--large"
       await page.waitForSelector(submitButton)
       await page.click(submitButton)
-
+      await checkNotNow(page)
       await page.waitFor('input[role=combobox]',{timeout:90000})
     } catch(e) {
       if(e.name == 'TimeoutError'){
@@ -268,6 +268,14 @@ async function linkedInPage(cfg, auth, browser) {
     }
   }
   
+  //Handling linkedin remember now page
+    async function checkNotNow(page){
+      try{
+        const notNowSelector = '[data-cie-control-urn="checkpoint_remember_me_save_info_no"]'
+        await page.waitForSelector(notNowSelector)
+        await page.click(notNowSelector)
+      }catch(e) {}
+    }
 
    // Email Verification Code Check
    async function check_email_vc_1() {
