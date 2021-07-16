@@ -23,96 +23,106 @@ function letsGetStarted(store, cb) {
   say(store, { chat: msgs[0], wait: 900 }, () => say(store, msgs[1], cb))
 }
 
-function checkingSetup() {
-  return dh.oneOf(
+function checkingSetup(store, cb) {
+  say(store, dh.oneOf(
     "I'm going to do a quick check of our setup...",
     "Doing a check of our setup...",
     "I'm going to start by checking our setup...",
-  ) + dh.oneOf(":mag:", ":mag_right:")
+  ) + dh.oneOf(":mag:", ":mag_right:"), cb)
 }
 
-function needServerURL() {
-  return "I need the server URL to be set so I can connect to the server.\n\nI get all sorts of information from it. Please set the serverURL for me to proceed"
+function gettingPlugins(store, cb) {
+  say(store, "Getting plugins...", cb)
 }
 
-function looksGood() {
-  return dh.oneOf(
+function gotPlugins(store, cb) {
+  say(store, "Downloaded latest plugins...", cb)
+}
+
+function needServerURL(store, cb) {
+  say(store, "I need the server URL to be set so I can connect to the server.\n\nI get all sorts of information from it. Please set the serverURL for me to proceed", cb)
+}
+
+function looksGood(store, cb) {
+  say(store, dh.oneOf(
     "Everything looks good!",
     `Everything looks good! ${dh.anEmoji("good")}`,
     `It all looks good! ${dh.anEmoji("good")}`,
     `Everything Ok... ${dh.anEmoji("good")}`,
-  )
+  ), cb)
 }
 
-function gettingUsers() {
-  return dh.oneOf(
+function gettingUsers(store, cb) {
+  say(store, dh.oneOf(
     "First let me check which users I am assigned to work for...",
     "Let's start by checking if there are any other users we should be working with...",
     "First, I am going to check with the server if there are any other users we need to work with..."
-  )
+  ), cb)
 }
 
-function errGettingUsers() {
-  return `**Error Getting Users**!
+function errGettingUsers(store, cb) {
+  say(store, `**Error Getting Users**!
 
 I will notify the developers of this issue. In the meantime you can check the message logs and see if that gives you any ideas.
-`
+`, cb)
 }
 
-function errSettingFroms() {
-  return `**Error Setting up Users**!
+function errSettingFroms(store, cb) {
+  say(store, `**Error Setting up Users**!
 
 I will notify the developers of this issue. In the meantime you can check the message logs and see if that gives you any ideas.
-`
+`, cb)
 }
 
-function errGettingTasks() {
-  return `**Error Getting Tasks**!
+function errGettingTasks(store, cb) {
+  say(store, `**Error Getting Tasks**!
 
 Failed to get tasks from the server.
-`
+`, cb)
 }
 
-function errScheduleWork(err) {
-  return `**Error Starting Task**!
+function errScheduleWork(err, store, cb) {
+  say(store, `**Error Starting Task**!
 
 I couldn't get the task working. Please see the log for more details...
-`
+`, cb)
 }
 
-function errSendingStatus(err) {
-  return `**Error Sending Status**!
+function errSendingStatus(err, store, cb) {
+  say(store, `**Error Sending Status**!
 
 I couldn't send the tasks updates to the server. I'll try again soon. Please see the log for more details...
-`
+`, cb)
 }
 
 
-function manageUsers(users) {
+function manageUsers(store, cb) {
+  const users = store.get("user.users")
   if(users.length == 0) {
-    return dh.oneOf(
+    say(store, {from: -1, chat: dh.oneOf(
       "Currently you do not have any other users to manage",
       "You do not have any other users to manage",
       "You have no other users to manage",
       "I did not find any other users for you to manage"
-    )
-  }
-  return dh.oneOf(
+    )}, cb)
+  } else {
+    say(store, {from: -1, chat: dh.oneOf(
     `You have ${users.length} users to manage`,
     `Found ${users.length} users for you to manage`,
     `You have ${users.length} users to work with`
-  )
+    )}, cb)
+  }
 }
 
-function noticeReport() {
-  return dh.oneOf(
+function noticeReport(store, cb) {
+  say(store, dh.oneOf(
     "I'll show you a report of the work I'm doing on the report pane to the right",
     "You can see the work we're doing on the report pane to the right",
     "To help you see what's going on we'll update working reports on the right hand side pane"
-  )
+  ), cb)
 }
 
-function gettingTasks() {
+function gettingTasks(store, cb) {
   const opts = [
     "Checking with the server for any new tasks...",
     "I'll ask the server for any more tasks...",
@@ -121,34 +131,35 @@ function gettingTasks() {
     "I'm asking the server for new tasks...",
     "I'm asking the server for more tasks...",
   ]
-  return dh.oneOf(opts) + dh.anEmoji("computer")
+  say(store, dh.oneOf(opts) + dh.anEmoji("computer"), cb)
 }
 
-function sentTasks(tasks) {
+function sentTasks(tasks, store, cb) {
   if(tasks.length == 0) {
-    return dh.oneOf(
+    say(store, dh.oneOf(
       "I haven't got anything new for you right now.\n\nCheck back later!",
       "No new tasks ATM",
       "Ok - haven't found anything new for you to do right now",
       "After checking everywhere I couldn't find anything for you to do.\n\nCheck back later."
-    )
+    ), cb)
+  } else {
+    say(store, dh.oneOf(
+      `Giving you ${tasks.length} task(s) to do`,
+      `Got ${tasks.length} task(s) for you to do`,
+      `Found ${tasks.length} task(s) for you to do`,
+      `Giving you ${tasks.length} task(s)`,
+      `Here you go - ${tasks.length} task(s)`
+    ), cb)
   }
-  return dh.oneOf(
-    `Giving you ${tasks.length} task(s) to do`,
-    `Got ${tasks.length} task(s) for you to do`,
-    `Found ${tasks.length} task(s) for you to do`,
-    `Giving you ${tasks.length} task(s)`,
-    `Here you go - ${tasks.length} task(s)`
-  )
 }
 
-function gotStatus(tasks) {
-  return dh.oneOf(
+function gotStatus(tasks, store, cb) {
+  say(store, dh.oneOf(
     `Thanks for the update :+1:`,
     `Updated the backend for ${tasks.length} tasks`,
     `Thanks. Have recorded the status updates`,
     `Thanks. Have recorded the status updates for ${tasks.length} tasks`
-  )
+  ), cb)
 }
 
 /*    way/
@@ -224,7 +235,8 @@ module.exports = {
   greeting,
   letsGetStarted,
   checkingSetup,
-  needServerURL,
+  gettingPlugins,
+  gotPlugins,
   looksGood,
   gettingUsers,
   errGettingUsers,

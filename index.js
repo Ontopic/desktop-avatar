@@ -123,7 +123,7 @@ function setupIPC(log) {
   })
 
   ipcMain.handle("x-it", async (e, task) => {
-    app.quit()
+    plugins.quit()
   })
 
   ipcMain.handle("clear-browsers", async () => {

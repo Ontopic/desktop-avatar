@@ -593,4 +593,5 @@ module.exports = {
   add,
   retry,
   sent,
+  quit,
 }
