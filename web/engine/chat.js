@@ -32,15 +32,39 @@ function checkingSetup(store, cb) {
 }
 
 function gettingPlugins(store, cb) {
-  say(store, "Getting plugins...", cb)
+  say(store, dh.oneOf(
+    "Getting plugins...",
+    "Hang on while I get the latest plugins...",
+    "Looking for plugins to do the work...",
+  ), cb)
 }
 
 function gotPlugins(store, cb) {
-  say(store, "Downloaded latest plugins...", cb)
+  say(store, dh.oneOf(
+    `Downloaded latest plugins ${dh.anEmoji(`tools`)}`,
+    `Got the latest plugins ${dh.anEmoji(`tools`)}`,
+    `Fetched latest plugins ${dh.anEmoji(`tools`)}`
+  ), cb)
 }
 
 function needServerURL(store, cb) {
   say(store, "I need the server URL to be set so I can connect to the server.\n\nI get all sorts of information from it. Please set the serverURL for me to proceed", cb)
+}
+
+function startingDB(store, cb) {
+  say(store, dh.oneOf(
+    "Starting database...",
+    "Let me connect to the database...",
+    "Initializing the database...",
+  ), cb)
+}
+
+function dbStarted(store, cb) {
+  say(store, dh.oneOf(
+    `Database set up! ${dh.anEmoji(`awesome`)}`,
+    `Database running! ${dh.anEmoji(`awesome`)}`,
+    `Database initialized! ${dh.anEmoji(`awesome`)}`,
+  ), cb)
 }
 
 function looksGood(store, cb) {
@@ -54,9 +78,9 @@ function looksGood(store, cb) {
 
 function gettingUsers(store, cb) {
   say(store, dh.oneOf(
-    "First let me check which users I am assigned to work for...",
+    "Let me check which users I am assigned to work for...",
     "Let's start by checking if there are any other users we should be working with...",
-    "First, I am going to check with the server if there are any other users we need to work with..."
+    "I am going to check with the server if there are any other users we need to work with..."
   ), cb)
 }
 
