@@ -6,7 +6,6 @@ const notifier = require('node-notifier');
 const { clone, pull } = require('isomorphic-git')
 const http = require('isomorphic-git/http/node')
 const ss = require('string-similarity')
-const { app } = require('electron')
 const loc = require('./loc.js')
 const dh = require('./display-helpers.js')
 const users = require('./users.js')
@@ -272,7 +271,7 @@ function performTask(auth, task, cb) {
             wait: true,
             appName: "SalesboxAI Desktop Avatar"
           })
-          setTimeout(() => app.quit(), 1000)
+          quit()
           return cb("Need CAPCHA")
         }
         if(err === users.LOGIN_ERR) {
@@ -285,7 +284,7 @@ function performTask(auth, task, cb) {
             wait: true,
             appName: "Salesbox Desktop Avatar"
           })
-          setTimeout(() => app.quit(), 1000)
+          quit()
           return cb(`Invalid Linkedin credential`)
         }
         if(err === users.PREMIUM_ERR) {
@@ -298,7 +297,7 @@ function performTask(auth, task, cb) {
             wait: true,
             appName: "Salesbox Desktop Avatar"
           })
-          setTimeout(() => app.quit(), 1000)
+          quit()
           return cb("You need a Sales Navigator or Premium account")
         }
         if(err === users.COOKIE_EXP) {
@@ -311,7 +310,7 @@ function performTask(auth, task, cb) {
             wait: true,
             appName: "Salesbox Desktop Avatar"
           })
-          setTimeout(() => app.quit(), 1000)
+          quit()
           return cb(`Cookie expired for User ${task.userId}. Please add new cookie string.`)
         }
         if(err === users.VC_ERR) {
@@ -324,7 +323,7 @@ function performTask(auth, task, cb) {
             wait: true,
             appName: "Salesbox Desktop Avatar"
           })
-          setTimeout(() => app.quit(), 1000)
+          quit()
           return cb(`Linkedin detected suspicious activity for User ${task.userId}. Check respective mail and enter verification code`)
         }
         return cb(err.stack? err.stack : err)
@@ -579,6 +578,11 @@ function sent(tasks) {
       else resolve()
     })
   })
+}
+
+function quit() {
+  const { app } = require('electron')
+  setTimeout(() => app.quit(), 1000)
 }
 
 module.exports = {
