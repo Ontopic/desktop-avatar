@@ -1,8 +1,15 @@
 'use strict'
 const dh = require('../../display-helpers.js')
 
-function greeting({store}) {
-  return dh.greeting(store.get("user.ui"))
+function say(msg, cb) {
+  let delay = Math.random() * 4000 + 1000
+  newMsg(env, msg)
+  if(msg.wait) delay = msg.wait
+  setTimeout(() => cb && cb(), delay)
+}
+
+function greeting(store) {
+  say(dh.greeting(store.get("user.ui")))
 }
 
 function letsGetStarted({say}, cb) {
@@ -142,6 +149,74 @@ function gotStatus(tasks) {
     `Thanks. Have recorded the status updates`,
     `Thanks. Have recorded the status updates for ${tasks.length} tasks`
   )
+}
+
+/*    way/
+ * create a new chat for the requested bot and add it to the store.
+ */
+function newMsg(env, msg) {
+  if(!msg) return
+  if(typeof msg === "string") msg = { chat: msg }
+  if(!msg.chat) return
+  if(typeof msg.chat !== "string") msg.chat = JSON.stringify(msg.chat)
+
+  let from = find_bot_1(env, msg)
+
+  env.store.event("msg/add", {
+    t: (new Date()).toISOString(),
+    from,
+    chat: msg.chat
+  })
+
+  /*    way/
+   * If the message contains a 'from' field we use that (special case -1
+   * == from server) or we use the environment's current user.
+   */
+  function find_bot_1(env, msg) {
+    if(msg.from === -1) return serverBot()
+    let ui = env.ui
+    if(msg.from) ui = msg.from
+    if(!ui) return emptyBot()
+    if(!ui.bots || !ui.bots.length) return {
+      id: ui.id,
+      firstName: ui.firstName,
+      lastName: ui.lastName,
+      title: ui.title,
+      userName: ui.userName,
+      logo: ui.pic
+    }
+    let bot
+    for(let i = 0;i < ui.bots.length;i++) {
+      bot = ui.bots[i]
+      if(bot.logo) break
+    }
+    return {
+      id: bot.id,
+      userName: bot.userName,
+      firstName: bot.firstName,
+      lastName: bot.lastName,
+      title: bot.title,
+      logo: bot.logo || ui.pic,
+    }
+  }
+
+  function serverBot() {
+    return {
+      id: -1,
+      userName: "salesbox.ai",
+      firstName: "SalesBox (Server)",
+      logo: "./bothead.png",
+    }
+  }
+  function emptyBot() {
+    return {
+      id: 0,
+      userName: "(null)",
+      firstName: "(No Name)",
+      logo: "./empty-bot.png",
+    }
+  }
+
 }
 
 
