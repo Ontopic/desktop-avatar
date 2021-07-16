@@ -146,9 +146,9 @@ function expectReducer(state, type, payload) {
   }
 }
 
-function userDuplicateRemoval(userList){
-  let uniqueUserList = []
-  let idList = []
+function userDuplicateRemoval(userList, ui){
+  let uniqueUserList = [ui]
+  let idList = [ui.id]
   for(let i = 0;i<userList.length;i++){
     if(!idList.includes(userList[i].id)){
       idList.push(userList[i].id)
@@ -168,16 +168,7 @@ function enrich(store) {
   store.getUsers = () => {
     const ui = store.get("user.ui")
     let users = store.get("user.users")
-    // Filtering duplicates if any
-    users = userDuplicateRemoval(users)
-    if(users.length>0) {
-      let ids = []
-      for(let i = 0;i<users.length;i++){
-        ids.push(users[i].id)
-      }
-      if(!ids.includes(ui.id)) users.push(ui)
-    }else users.push(ui)
-    return users
+    return userDuplicateRemoval(users, ui)
   }
 
   store.getActiveUsers = () => {

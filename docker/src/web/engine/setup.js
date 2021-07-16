@@ -23,7 +23,10 @@ function getPlugins(store, log, cb) {
     .then(cb)
     .catch(err => {
       log("err/getPlugins", err)
-      chat.say(store, "**Error downloading plugins**!\n\nI will notify the developers of this issue. In the meantime you can check the message logs and see if that gives you any ideas.", () => ww.x.it())
+      chat.say(store, `**Error downloading plugins**!
+I will notify the developers of this issue.
+More details should be available in the log file: ${log.getName()}
+`, () => ww.x.it())
     })
 }
 
