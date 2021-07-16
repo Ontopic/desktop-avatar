@@ -174,7 +174,7 @@ function newMsg(store, msg) {
    */
   function find_bot_1(store, msg) {
     if(msg.from === -1) return serverBot()
-    let ui = store.get("users.ui")
+    let ui = store.get("user.ui")
     if(msg.from) ui = msg.from
     if(!ui) return emptyBot()
     if(!ui.bots || !ui.bots.length) return {
