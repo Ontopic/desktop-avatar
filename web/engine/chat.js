@@ -237,4 +237,6 @@ module.exports = {
   errGettingTasks,
   errScheduleWork,
   errSendingStatus,
+
+  say,
 }
