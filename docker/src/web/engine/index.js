@@ -5,9 +5,10 @@ const chat = require('./chat.js')
  * the default entry point - starts the engine!
  */
 function start(log, store) {
-    chat.greeting(store)
+    chat.greeting(store, () => {
+      chat.letsGetStarted(store)
+    })
   /*
-    chat.letsGetStarted,
     { call: "setup" },
     setup.getPlugins,
     chat.looksGood,
