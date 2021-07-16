@@ -19,6 +19,7 @@ module.exports = (log, store, cb) => {
     log("login/done", { id:ui.id, usr })
     log.trace("login/info", ui)
     store.event("ui/set", ui)
+    cb()
   })
 
   function invalid_1(resp) {
