@@ -1,15 +1,15 @@
 'use strict'
 const dh = require('../../display-helpers.js')
 
-function say(msg, cb) {
+function say(store, msg, cb) {
   let delay = Math.random() * 4000 + 1000
-  newMsg(env, msg)
+  newMsg(store, msg)
   if(msg.wait) delay = msg.wait
   setTimeout(() => cb && cb(), delay)
 }
 
 function greeting(store) {
-  say(dh.greeting(store.get("user.ui")))
+  say(store, dh.greeting(store.get("user.ui")))
 }
 
 function letsGetStarted({say}, cb) {
@@ -154,15 +154,15 @@ function gotStatus(tasks) {
 /*    way/
  * create a new chat for the requested bot and add it to the store.
  */
-function newMsg(env, msg) {
+function newMsg(store, msg) {
   if(!msg) return
   if(typeof msg === "string") msg = { chat: msg }
   if(!msg.chat) return
   if(typeof msg.chat !== "string") msg.chat = JSON.stringify(msg.chat)
 
-  let from = find_bot_1(env, msg)
+  let from = find_bot_1(store, msg)
 
-  env.store.event("msg/add", {
+  store.event("msg/add", {
     t: (new Date()).toISOString(),
     from,
     chat: msg.chat
@@ -172,9 +172,9 @@ function newMsg(env, msg) {
    * If the message contains a 'from' field we use that (special case -1
    * == from server) or we use the environment's current user.
    */
-  function find_bot_1(env, msg) {
+  function find_bot_1(store, msg) {
     if(msg.from === -1) return serverBot()
-    let ui = env.ui
+    let ui = store.get("users.ui")
     if(msg.from) ui = msg.from
     if(!ui) return emptyBot()
     if(!ui.bots || !ui.bots.length) return {
