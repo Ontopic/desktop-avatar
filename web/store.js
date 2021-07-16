@@ -134,6 +134,8 @@ function viewReducer(state, type, payload) {
 function settingsReducer(state, type, payload) {
   switch(type) {
     case "settings/set": return payload
+    case "serverURL/set":
+      return { ...state, serverURL: payload }
     default: return state
   }
 }

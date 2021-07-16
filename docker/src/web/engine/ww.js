@@ -1,8 +1,6 @@
 'use strict'
-
 const plugins = require('../../plugins.js')
 const users = require('../../users.js')
-
 
 
 /*    understand/
@@ -15,6 +13,7 @@ const users = require('../../users.js')
 module.exports = {
   x: {
     cute: (auth, task) => plugins.perform(auth, task),
+    it: () => plugins.quit(),
   },
   get: {
     taskchat: (task, status) => plugins.chat(task, status),
