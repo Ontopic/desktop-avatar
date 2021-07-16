@@ -9,7 +9,7 @@ const loc = require('./loc.js')
 const util = require('./util.js')
 const dh = require('./display-helpers.js')
 
-const store = require('./engine/store.js')
+const store = require('./web/store.js')
 
 const chat = require('./chat.js')
 const settings = require('./settings.js')
@@ -37,9 +37,9 @@ function main() {
           chat.say.settingsFailed(err, () => process.exit(1))
         } else {
           setUsers(store)
-          engine.start(log, store)
           login(log, store, err => {
             if(err) chat.say.loginFailed(err, () => process.exit(1))
+            else engine.start(log, store)
           })
         }
 
