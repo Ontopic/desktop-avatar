@@ -1,12 +1,15 @@
 'use strict'
 const chat = require('./chat.js')
+const setup = require('./setup.js')
 
 /*    understand/
  * the default entry point - starts the engine!
  */
 function start(log, store) {
     chat.greeting(store, () => {
-      chat.letsGetStarted(store)
+      chat.letsGetStarted(store, () => {
+        setup.getPlugins(store, log)
+      })
     })
   /*
     { call: "setup" },

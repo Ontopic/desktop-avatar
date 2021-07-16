@@ -8,7 +8,7 @@ const setup = require('./setup.js')
 function start(log, store) {
     chat.greeting(store, () => {
       chat.letsGetStarted(store, () => {
-        setup.getPlugins(store)
+        setup.getPlugins(store, log)
       })
     })
   /*
