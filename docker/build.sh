@@ -20,19 +20,19 @@ function copy_code() {
   rm dbg.js
 
   echo copying store reducer
-  mkdir engine
-  cp ../../web/store.js ./engine/
+  mkdir web
+  cp ../../web/store.js ./web/
 
   echo copying avatar engine code
-  mkdir engine/avatar
-  cp ../../web/avatar/*js ./engine/avatar/
+  mkdir web/engine
+  cp ../../web/engine/*js ./web/engine/
 
   echo setting docker specific code..
   cp ../index.js .
   cp ../chat.js .
   cp ../settings.js .
   cp ../login.js .
-  cp ../ww.js ./engine/avatar/
+  cp ../ww.js ./web/engine/
 
   cd ..
 }
