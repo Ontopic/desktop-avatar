@@ -2,8 +2,15 @@
 const kc = require('../../kafclient.js')
 const ww = require('./ww.js')
 
+/*    understand/
+ * the processed data
+ */
 const DB = {}
+function get() { return DB }
 
+/*    way/
+ * start the data gathering process for each user
+ */
 function start(log, store, cb) {
   const users = store.getUsers()
   start_1(0)
@@ -14,6 +21,10 @@ function start(log, store, cb) {
   }
 }
 
+/*    way/
+ * connect and fetch all the existing data for the user,
+ * then continue running to update data as the app runs
+ */
 function startUserDB(user, log, store, cb) {
   if(DB[user.id]) return
 
@@ -39,6 +50,9 @@ function startUserDB(user, log, store, cb) {
 
 }
 
+/*    way/
+ * periodically get data and process it
+ */
 function run(user, log, store) {
   const tasks = DB[user.id]
   const name = `User-${user.id}`
@@ -51,10 +65,17 @@ function run(user, log, store) {
   })
 }
 
+/*    way/
+ * process new tasks and their status updates
+ */
 function process(rec, tasks, log, store) {
   if(rec.e === "task/new") return new_task_1(rec)
   if(rec.e === "task/status") return task_status_1(rec)
 
+  /*    way/
+   * get the existing corresponding task that was inserted
+   * into the task list, creating a new one if requested
+   */
   function nsert_1(task, create) {
     const id = task.data && task.data.id
     if(!id) {
@@ -78,6 +99,10 @@ function process(rec, tasks, log, store) {
     return ex
   }
 
+  /*    way/
+   * process the various task statuses, updating the task
+   * fields and last status
+   */
   function task_status_1(task) {
     const code = task.data && task.data.code
     if(!code && code !== 0) {
@@ -134,6 +159,9 @@ function dbStr(DB) {
   }, 2)
 }
 
+/*    way/
+ * log the error message, inform the user, then exit/crash
+ */
 function ERR(msg) {
   log("err/engine/db/start", msg)
   chat.say(store, `**DATA ERROR**!
@@ -149,4 +177,6 @@ More details should be available in the log file: ${log.getName()}
 module.exports = {
   start,
   dbStr,
+
+  get,
 }
