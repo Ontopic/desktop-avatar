@@ -117,6 +117,7 @@ function process(rec, tasks, log, store) {
       case 401: return task_updt_status_1("fin", "failed/captcha", task)
       case 403: return task_updt_status_1("fin", "failed/bad-user", task)
       case 424: return task_updt_status_1("fin", "failed/update-needed", task)
+      case 429: return task_updt_status_1("fin", "failed/daily-limit", task)
       case 500: return task_updt_status_1("fin", "failed/error", task)
       case 501: return task_updt_status_1("fin", "failed/no-plugin", task)
       case 504: return task_updt_status_1("fin", "failed/timeout", task)
