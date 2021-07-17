@@ -81,7 +81,32 @@ function sendStatuses(user, statusUpdates, cb) {
 
 }
 
+function getTasks(log, store, cb) {
+  log("trace/backend/gettasks")
+  const users = store.getUsers()
+  const forUsers = users.map(ui => {
+    return {
+      id: ui.id, seed: ui.seed, authKey: ui.authKey
+    }
+  })
+
+  const serverURL = store.get("settings.serverURL")
+  const p = `${serverURL}/dapp/v2/tasks`
+  req.post(p, {
+    id: ui.id,
+    seed: ui.seed,
+    authKey: ui.authKey,
+    forUsers,
+  }, (err, resp) => {
+    if(err) return cb(err)
+    let tasks = resp.body || []
+    log("trace/backend/gettasks", { num: tasks.length })
+    cb(tasks)
+  })
+}
+
 module.exports = {
   getUsers,
   sendStatuses,
+  getTasks,
 }

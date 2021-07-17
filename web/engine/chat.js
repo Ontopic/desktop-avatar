@@ -186,6 +186,15 @@ function gotStatus(tasks, store, cb) {
   ), cb)
 }
 
+function nothingToDo(store, cb) {
+  const opts = [
+    "Nothing to do...",
+    "Taking a break...",
+    "Yawn...",
+  ]
+  say(store, dh.oneOf(opts) + dh.anEmoji("sleepy"), cb)
+}
+
 /*    way/
  * create a new chat for the requested bot and add it to the store.
  */
@@ -275,6 +284,7 @@ module.exports = {
   errGettingTasks,
   errScheduleWork,
   errSendingStatus,
+  nothingToDo,
 
   say,
 }
