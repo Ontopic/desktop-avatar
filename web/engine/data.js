@@ -1,5 +1,6 @@
 'use strict'
 const kc = require('../../kafclient.js')
+const chat = require('./chat.js')
 const ww = require('./ww.js')
 
 /*    understand/
@@ -43,13 +44,13 @@ function startUserDB(user, log, store, cb) {
   const ctrl = kc.get(name, resp => {
     for(let i = 0;i < resp.length;i++) {
       if(!process(resp[i], tasks, log, store)) {
-        ERR(resp[i])
+        ERR(name, resp[i], log, store)
         ctrl.stop = true
         return
       }
     }
   }, (err, end) => {
-    if(err) return ERR(err)
+    if(err) return ERR(name, err, log, store)
     if(!end) return 10
     run(user, log, store)
     cb()
@@ -67,7 +68,7 @@ function run(user, log, store) {
   kc.get(name, resp => {
     resp.map(rec => process(rec, tasks, log, store))
   }, err => {
-    if(err) return ERR(err)
+    if(err) return ERR(name, err, log, store)
     return 500 + (Math.random() * 1500)
   })
 }
@@ -179,7 +180,7 @@ function dbStr() {
 /*    way/
  * log the error message, inform the user, then exit/crash
  */
-function ERR(msg) {
+function ERR(name, msg, log, store) {
   log("err/engine/db/start", msg)
   chat.say(store, `**DATA ERROR**!
 Please check the data file:
