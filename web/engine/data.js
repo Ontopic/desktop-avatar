@@ -149,12 +149,19 @@ function process(rec, tasks, log, store) {
 
   /*    way/
    * if this is a new task, save it against the lead, otherwise just
-   * update the time at which we got it to the latest
+   * update the time at which we got it to the latest and check if
+   * we need to retry (after 15 minutes)
    */
   function new_task_1(task) {
     const inserted = nsert_1(task, true)
     const t = tt_1(task)
     if(inserted.got < t) inserted.got = t
+    if(inserted.fin) {
+      const d = inserted.got - inserted.fin
+      if(d > 15 * 60 * 1000) inserted.last = "retry"
+    } else {
+      inserted.last = "new"
+    }
     store.event("task/add", task.data)
     return true
   }
