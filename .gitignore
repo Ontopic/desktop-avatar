@@ -4,3 +4,4 @@ pub/
 dist/
 desktop-avatar-docker-db
 docker/desktop-avatar-docker-db
+_tmp/
