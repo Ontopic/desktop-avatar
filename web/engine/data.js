@@ -187,7 +187,7 @@ function dbStr() {
   }, 2)
 }
 
-function log(e, data, userid, log_, store) {
+function log(e, data, userid, log_, store, cb) {
   const rec = {
     t: (new Date()).toISOString(),
     e,
@@ -196,7 +196,7 @@ function log(e, data, userid, log_, store) {
   const tasks = DB[userid]
   process(rec, tasks, log_, store)
   const name = `User-${userid}`
-  kc.put(rec, name, () => 1)
+  kc.put(rec, name, () => cb && cb())
 }
 
 /*    way/

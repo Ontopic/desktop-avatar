@@ -3,6 +3,7 @@ const chat = require('./chat.js')
 const setup = require('./setup.js')
 const backend = require('./backend.js')
 const data = require('./data.js')
+const schedule = require('./schedule.js')
 
 /*    understand/
  * the default entry point - starts the engine!
@@ -87,20 +88,35 @@ function run(log, store) {
 
     if(!done_something) {
       const now = Date.now()
-      if(now - gotTasks > 1000 + (Math.random() * 1500)) {
-        backend.getTasks(log, store, (err, tasks) => {
-          if(err) {
-            log("err/getTasks", err)
-            chat.say(store, "ERROR: Failed getting tasks from Server!")
-          } else {
-            if(!tasks || !tasks.length) warnNothing()
-            else add(tasks)
-          }
-          setTimeout(do_1, delay)
-        })
-      } else {
-        setTimeout(do_1, delay)
-      }
+      if(now - last.gotTasks < 2 * 1000 * 60) return setTimeout(do_1, delay)
+      last.gotTasks = now
+      chat.gettingTasks(store)
+      backend.getTasks(log, store, (err, tasks) => {
+        if(err) {
+          log("err/getTasks", err)
+          chat.say(store, "ERROR: Failed getting tasks from Server!", () => setTimeout(do_1, delay))
+        } else {
+          if(!tasks || !tasks.length) warn_nothing_1(() => setTimeout(do_1, delay))
+          else add(user, tasks, () => setTimeout(do_1, delay))
+        }
+      })
+    }
+  }
+
+  function warn_nothing_1(cb) {
+    const now = Date.now()
+    if(now - last.limitWarning < 30 * 60 * 1000) return cb()
+    chat.nothingToDo(store, cb)
+  }
+
+  function add_1(user, tasks, cb) {
+    add_ndx_1(0)
+
+    function add_ndx_1(ndx) {
+      if(ndx >= tasks.length) return cb()
+      data.log("task/new", tasks[ndx], user.id, log, store, () => {
+        add_ndx_1(ndx+1)
+      })
     }
   }
 
