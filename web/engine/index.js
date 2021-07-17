@@ -52,7 +52,7 @@ function start(log, store) {
 function run(log, store) {
   const users = store.get("user.users")
   const last = {
-    limitWarning: 0,
+    nothing: 0,
     gotTasks: 0,
   }
   do_1()
@@ -66,27 +66,9 @@ function run(log, store) {
   function do_1() {
     const delay = (Math.random() * 1000) + 500
 
-    let done_something = false
+    do_ndx_1(0, performing => {
+      if(performing) return
 
-    for(let i = 0;i < users.length;i++) {
-      const user = users[i]
-      const tasks = data.get(user)
-      const card = schedule.get(data.get(), user)
-      if(card.type === "performing") continue;
-      if(card.type === "too-soon") continue;
-      if(card.type === "nothing-to-do") continue
-      if(card.type === "daily-limit-reached") {
-        warnLimit(user, card)
-        continue
-      }
-      if(card.type === "task") {
-        perform(card, () => setTimeout(do_1, delay))
-        done_something = true
-        break
-      }
-    }
-
-    if(!done_something) {
       const now = Date.now()
       if(now - last.gotTasks < 2 * 1000 * 60) return setTimeout(do_1, delay)
       last.gotTasks = now
@@ -100,12 +82,38 @@ function run(log, store) {
           else add(user, tasks, () => setTimeout(do_1, delay))
         }
       })
+    })
+
+    function do_ndx_1(ndx, cb) {
+      if(ndx >= users.length) return cb()
+      const user = users[ndx]
+      const tasks = data.get(user)
+      const card = schedule.get(data.get(), user)
+      if(card.type === "performing") continue;
+      if(card.type === "too-soon") continue;
+      if(card.type === "nothing-to-do") continue
+      if(card.type === "daily-limit-reached") {
+        return mark_limit_1(user, card, () => do_ndx_1(ndx+1, cb)
+      }
+      if(card.type === "task") {
+        perform(card, () => setTimeout(do_1, delay))
+        return cb(true)
+      }
+      do_ndx_1(ndx+1, cb)
     }
+
+  }
+
+  function mark_limit_1(user, card, cb) {
+    data.log("task/status", card.task, user.id, log, store, () => {
+      chat.limit(store, card.task, cb)
+    })
   }
 
   function warn_nothing_1(cb) {
     const now = Date.now()
-    if(now - last.limitWarning < 30 * 60 * 1000) return cb()
+    if(now - last.nothing < 30 * 60 * 1000) return cb()
+    last.nothing = now
     chat.nothingToDo(store, cb)
   }
 
