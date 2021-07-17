@@ -92,10 +92,10 @@ function process(rec, tasks, log, store) {
     const ex = tasks[id]
     if(!ex && create) {
       const inserted = {
-        got: "",
-        beg: "",
-        fin: "",
-        sent: "",
+        got: 0,
+        beg: 0,
+        fin: 0,
+        sent: 0,
         last: "new",
         steps: [ task ],
       }
@@ -140,7 +140,8 @@ function process(rec, tasks, log, store) {
       return
     }
     inserted.last = msg
-    if(inserted[k] < task.t) inserted[k] = task.t
+    const t = tt_1(task)
+    if(inserted[k] < t) inserted[k] = t
     store.event("status/add", task.data)
     return true
   }
@@ -151,9 +152,14 @@ function process(rec, tasks, log, store) {
    */
   function new_task_1(task) {
     const inserted = nsert_1(task, true)
-    if(inserted.got < task.t) inserted.got = task.t
+    const t = tt_1(task)
+    if(inserted.got < t) inserted.got = t
     store.event("task/add", task.data)
     return true
+  }
+
+  function tt_1(task) {
+    return (new Date(task.t)).getTime()
   }
 }
 
@@ -163,7 +169,10 @@ function process(rec, tasks, log, store) {
 function dbStr() {
   return JSON.stringify(DB, (k,v) => {
     if(k === "steps") return v.map(v => JSON.stringify(v).replace(/"/g, ""))
-    else return v
+    if(["got", "beg", "fin", "sent"].indexOf(k) !== -1) {
+      if(v) return (new Date(v)).toISOString()
+    }
+    return v
   }, 2)
 }
 
