@@ -150,7 +150,7 @@ function process(rec, tasks, log, store) {
   /*    way/
    * if this is a new task, save it against the lead, otherwise just
    * update the time at which we got it to the latest and check if
-   * we need to retry (after 15 minutes)
+   * it has not already started/finished and we need to retry (after 15 minutes)
    */
   function new_task_1(task) {
     const inserted = nsert_1(task, true)
@@ -158,11 +158,14 @@ function process(rec, tasks, log, store) {
     if(inserted.got < t) inserted.got = t
     if(inserted.fin) {
       const d = inserted.got - inserted.fin
-      if(d > 15 * 60 * 1000) inserted.last = "retry"
-    } else {
+      if(d > 15 * 60 * 1000) {
+        inserted.last = "retry"
+        store.event("task/add", task.data)
+      }
+    } else if(!inserted.beg) {
       inserted.last = "new"
+      store.event("task/add", task.data)
     }
-    store.event("task/add", task.data)
     return true
   }
 
@@ -184,7 +187,7 @@ function dbStr() {
   }, 2)
 }
 
-function log(e, data, userid, log_, store) {
+function log(e, data, userid, log_, store, cb) {
   const rec = {
     t: (new Date()).toISOString(),
     e,
@@ -193,7 +196,7 @@ function log(e, data, userid, log_, store) {
   const tasks = DB[userid]
   process(rec, tasks, log_, store)
   const name = `User-${userid}`
-  kc.put(rec, name, () => 1)
+  kc.put(rec, name, () => cb && cb())
 }
 
 /*    way/

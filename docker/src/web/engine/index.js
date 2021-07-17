@@ -3,6 +3,7 @@ const chat = require('./chat.js')
 const setup = require('./setup.js')
 const backend = require('./backend.js')
 const data = require('./data.js')
+const schedule = require('./schedule.js')
 
 /*    understand/
  * the default entry point - starts the engine!
@@ -51,7 +52,7 @@ function start(log, store) {
 function run(log, store) {
   const users = store.get("user.users")
   const last = {
-    limitWarning: 0,
+    nothing: 0,
     gotTasks: 0,
   }
   do_1()
@@ -65,42 +66,65 @@ function run(log, store) {
   function do_1() {
     const delay = (Math.random() * 1000) + 500
 
-    let done_something = false
+    do_ndx_1(0, performing => {
+      if(performing) return
 
-    for(let i = 0;i < users.length;i++) {
-      const user = users[i]
+      const now = Date.now()
+      if(now - last.gotTasks < 2 * 1000 * 60) return setTimeout(do_1, delay)
+      last.gotTasks = now
+      chat.gettingTasks(store)
+      backend.getTasks(log, store, (err, tasks) => {
+        if(err) {
+          log("err/getTasks", err)
+          chat.say(store, "ERROR: Failed getting tasks from Server!", () => setTimeout(do_1, delay))
+        } else {
+          if(!tasks || !tasks.length) warn_nothing_1(() => setTimeout(do_1, delay))
+          else add(user, tasks, () => setTimeout(do_1, delay))
+        }
+      })
+    })
+
+    function do_ndx_1(ndx, cb) {
+      if(ndx >= users.length) return cb()
+      const user = users[ndx]
       const tasks = data.get(user)
       const card = schedule.get(data.get(), user)
       if(card.type === "performing") continue;
       if(card.type === "too-soon") continue;
       if(card.type === "nothing-to-do") continue
       if(card.type === "daily-limit-reached") {
-        warnLimit(user, card)
-        continue
+        return mark_limit_1(user, card, () => do_ndx_1(ndx+1, cb)
       }
       if(card.type === "task") {
         perform(card, () => setTimeout(do_1, delay))
-        done_something = true
-        break
+        return cb(true)
       }
+      do_ndx_1(ndx+1, cb)
     }
 
-    if(!done_something) {
-      const now = Date.now()
-      if(now - gotTasks > 1000 + (Math.random() * 1500)) {
-        backend.getTasks(log, store, (err, tasks) => {
-          if(err) {
-            log("err/getTasks", err)
-            chat.say(store, "ERROR: Failed getting tasks from Server!")
-          } else {
-            if(!tasks || !tasks.length) warnNothing()
-            else add(tasks)
-          }
-          setTimeout(do_1, delay)
-        })
-      } else {
-        setTimeout(do_1, delay)
-      }
+  }
+
+  function mark_limit_1(user, card, cb) {
+    data.log("task/status", card.task, user.id, log, store, () => {
+      chat.limit(store, card.task, cb)
+    })
+  }
+
+  function warn_nothing_1(cb) {
+    const now = Date.now()
+    if(now - last.nothing < 30 * 60 * 1000) return cb()
+    last.nothing = now
+    chat.nothingToDo(store, cb)
+  }
+
+  function add_1(user, tasks, cb) {
+    add_ndx_1(0)
+
+    function add_ndx_1(ndx) {
+      if(ndx >= tasks.length) return cb()
+      data.log("task/new", tasks[ndx], user.id, log, store, () => {
+        add_ndx_1(ndx+1)
+      })
     }
   }
 
