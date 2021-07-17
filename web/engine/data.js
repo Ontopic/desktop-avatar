@@ -153,7 +153,7 @@ function process(rec, tasks, log, store) {
 /*    understand/
  * helper function to print out the DB in a readable format
  */
-function dbStr(DB) {
+function dbStr() {
   return JSON.stringify(DB, (k,v) => {
     if(k === "steps") return v.map(v => JSON.stringify(v).replace(/"/g, ""))
     else return v
