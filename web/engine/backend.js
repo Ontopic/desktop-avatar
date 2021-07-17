@@ -1,12 +1,14 @@
 'use strict'
 const req = require('@tpp/req')
+const chat = require('./chat.js')
+const ww = require('./ww.js')
 
 /*    understand/
  * get a list of users information for whom this app
  * is going to do work for
  */
 function getUsers(log, store, cb) {
-  log("avatar/gettingusers")
+  log("backend/gettingusers")
   const serverURL = store.get("settings.serverURL")
   let p = `${serverURL}/dapp/v2/myusers`
   let ui = store.get("user.ui")
@@ -18,11 +20,10 @@ function getUsers(log, store, cb) {
     users: allowedUsers
   }, (err, resp) => {
     if(err || !resp || !resp.body) {
-      log("err/avatar/gettingusers", err)
-      cb({
-        chat: chat.errGettingUsers(),
-        call: "exit"
-      })
+      log("err/backend/gettingusers", err)
+      chat.say(store, `**FAILED GETTING USERS**
+Please check the log file: ${log.getName()} for more details
+`, () => ww.x.it())
     } else {
       let users = resp.body
       let t = []
@@ -33,8 +34,8 @@ function getUsers(log, store, cb) {
           }
       }
       t = remove_duplicate_users_1(t)
-      log("avatar/gotusers", { num: t.length })
-      log.trace("avatar/gotusers", t)
+      log("backend/gotusers", { num: t.length })
+      log.trace("backend/gotusers", t)
       store.event("users/set", t)
       cb && cb()
     }
@@ -60,6 +61,27 @@ function getUsers(log, store, cb) {
 
 }
 
+function sendStatuses(user, statusUpdates, cb) {
+  log("trace/backend/sendstatus")
+  const serverURL = store.get("settings.serverURL")
+  let p = `${serverURL}/dapp/v2/status`
+
+  req.post(p, {
+    id: user.id,
+    seed: user.seed,
+    authKey: user.authKey,
+    statusUpdates,
+  }, (err, resp) => {
+    if(err) {
+      log("err/sendStatuses", err)
+      return cb(false)
+    }
+    return cb(true)
+  })
+
+}
+
 module.exports = {
   getUsers,
+  sendStatuses,
 }
