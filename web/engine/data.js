@@ -6,7 +6,14 @@ const ww = require('./ww.js')
  * the processed data
  */
 const DB = {}
-function get() { return DB }
+
+/*    way/
+ * get the user data or the entire db
+ */
+function get(user) {
+  if(!user) return DB
+  else return DB[user.id]
+}
 
 /*    way/
  * start the data gathering process for each user
