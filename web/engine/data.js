@@ -184,6 +184,18 @@ function dbStr() {
   }, 2)
 }
 
+function log(e, data, userid, log_, store) {
+  const rec = {
+    t: (new Date()).toISOString(),
+    e,
+    data,
+  }
+  const tasks = DB[userid]
+  process(rec, tasks, log_, store)
+  const name = `User-${userid}`
+  kc.put(rec, name, () => 1)
+}
+
 /*    way/
  * log the error message, inform the user, then exit/crash
  */
@@ -204,4 +216,5 @@ module.exports = {
   dbStr,
 
   get,
+  log,
 }
