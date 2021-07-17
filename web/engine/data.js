@@ -49,10 +49,10 @@ function startUserDB(user, log, store, cb) {
         return
       }
     }
-  }, (err, end) => {
+  }, (err, end, from) => {
     if(err) return ERR(name, err, log, store)
     if(!end) return 10
-    run(user, log, store)
+    run(from, user, log, store)
     cb()
   })
 
@@ -61,7 +61,7 @@ function startUserDB(user, log, store, cb) {
 /*    way/
  * periodically get data and process it
  */
-function run(user, log, store) {
+function run(from, user, log, store) {
   const tasks = DB[user.id]
   const name = `User-${user.id}`
   log(`trace/engine/db/${name}`, "running")
@@ -70,7 +70,7 @@ function run(user, log, store) {
   }, err => {
     if(err) return ERR(name, err, log, store)
     return 500 + (Math.random() * 1500)
-  })
+  }, from)
 }
 
 /*    way/
