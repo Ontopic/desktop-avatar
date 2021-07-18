@@ -83,6 +83,7 @@ function sendStatuses(user, statusUpdates, cb) {
 
 function getTasks(log, store, cb) {
   log("trace/backend/gettasks")
+  const ui = store.get("user.ui")
   const users = store.getUsers()
   const forUsers = users.map(ui => {
     return {
@@ -101,7 +102,7 @@ function getTasks(log, store, cb) {
     if(err) return cb(err)
     let tasks = resp.body || []
     log("trace/backend/gettasks", { num: tasks.length })
-    cb(tasks)
+    cb(null, tasks)
   })
 }
 

@@ -79,7 +79,7 @@ function run(log, store) {
           chat.say(store, "ERROR: Failed getting tasks from Server!", () => setTimeout(do_1, delay))
         } else {
           if(!tasks || !tasks.length) warn_nothing_1(() => setTimeout(do_1, delay))
-          else add(user, tasks, () => setTimeout(do_1, delay))
+          else add_1(tasks, () => setTimeout(do_1, delay))
         }
       })
     })
@@ -88,20 +88,38 @@ function run(log, store) {
       if(ndx >= users.length) return cb()
       const user = users[ndx]
       const tasks = data.get(user)
-      const card = schedule.get(data.get(), user)
-      if(card.type === "performing") continue;
-      if(card.type === "too-soon") continue;
-      if(card.type === "nothing-to-do") continue
+      const card = schedule.get(tasks, user)
+      if(card.type === "performing") return do_ndx_1(ndx+1, cb)
+      if(card.type === "too-soon") return do_ndx_1(ndx+1, cb)
+      if(card.type === "nothing-to-do") return do_ndx_1(ndx+1, cb)
       if(card.type === "daily-limit-reached") {
-        return mark_limit_1(user, card, () => do_ndx_1(ndx+1, cb)
+        return mark_limit_1(user, card, () => do_ndx_1(ndx+1, cb))
       }
       if(card.type === "task") {
-        perform(card, () => setTimeout(do_1, delay))
+        perform_1(user, card, () => setTimeout(do_1, delay))
         return cb(true)
       }
       do_ndx_1(ndx+1, cb)
     }
 
+  }
+
+  function perform_1(user, card, cb) {
+    log("performing/task", { task: card.task })
+
+    const auth = {
+      id: user.id,
+      linkedinUsername: user.linkedinUsername,
+      linkedinPassword: user.linkedinPassword,
+    }
+    chat.performing(store, card.task, () => {
+      ww.x.cute(auth, task)
+        .then(msg => data.log("task/status", card.task, user.id, log, store, cb))
+        .catch(err => {
+          log("err/performing/task", err)
+          chat.errPerforming(store, card.task, cb)
+        })
+    })
   }
 
   function mark_limit_1(user, card, cb) {
@@ -117,12 +135,13 @@ function run(log, store) {
     chat.nothingToDo(store, cb)
   }
 
-  function add_1(user, tasks, cb) {
+  function add_1(tasks, cb) {
     add_ndx_1(0)
 
     function add_ndx_1(ndx) {
       if(ndx >= tasks.length) return cb()
-      data.log("task/new", tasks[ndx], user.id, log, store, () => {
+      const task = tasks[ndx]
+      data.log("task/new", task, task.userId, log, store, () => {
         add_ndx_1(ndx+1)
       })
     }
