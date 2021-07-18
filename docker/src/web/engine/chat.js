@@ -195,6 +195,14 @@ function nothingToDo(store, cb) {
   say(store, dh.oneOf(opts) + dh.anEmoji("sleepy"), cb)
 }
 
+function performing(store, task, cb) {
+  say(store, `Performing ${task.action}...`, cb)
+}
+
+function errPerforming(store, task, cb) {
+  say(store, `Error: Performing ${task.action}...`, cb)
+}
+
 /*    way/
  * create a new chat for the requested bot and add it to the store.
  */
@@ -285,6 +293,8 @@ module.exports = {
   errScheduleWork,
   errSendingStatus,
   nothingToDo,
+  performing,
+  errPerforming,
 
   say,
 }
