@@ -10,6 +10,9 @@ const ww = require('./ww.js')
  * the default entry point - starts the engine!
  */
 function start(log, store) {
+  const ui = store.get("user.ui")
+  if(!ui) return setTimeout(() => start(log, store), 500)
+
   welcome_1(() => setup_1(() => users_1(() => startdb_1(() => work_1()))))
 
 
