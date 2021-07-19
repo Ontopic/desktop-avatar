@@ -10,18 +10,18 @@
 function get(tasks, user) {
   let lastDone = 0
   let pick
-  for(let i = 0;i < tasks.length;i++) {
-    const task = tasks[i]
+  for(let tid in tasks) {
+    const task = tasks[tid]
     if(task.last === "started") return { type: "performing" }
     if(lastDone < task.fin) lastDone = task.fin
     if(pick) continue
     if(task.last === "new" || task.last === "retry") {
-      if(dailyLimitHit(task)) return { type: "daily-limit-reached", task }
-      else pick = task
+      if(dailyLimitHit(tasks, task)) return { type: "daily-limit-reached", task }
+      else pick = pickStep(task)
     }
     if(task.last === "failed/daily-limit") {
       const now = Date.now()
-      if(now - task.fin > 24 * 60 * 60 * 1000) pick = task
+      if(now - task.fin > 24 * 60 * 60 * 1000) pick = pickStep(task)
     }
   }
   if(pick) {
@@ -30,4 +30,22 @@ function get(tasks, user) {
     else return { type: "task", task: pick }
   }
   return { type: "nothing-to-do" }
+}
+
+function pickStep(task) {
+  let pick
+  for(let i = 0;i < task.steps.length;i++) {
+    const t = task.steps[i]
+    if(t.e === "task/new" || t.e === "task/retry") pick = t
+  }
+  return pick
+}
+
+function dailyLimitHit(tasks, task) {
+  // TODO
+  return false
+}
+
+module.exports = {
+  get,
 }

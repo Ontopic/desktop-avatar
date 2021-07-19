@@ -4,6 +4,7 @@ const setup = require('./setup.js')
 const backend = require('./backend.js')
 const data = require('./data.js')
 const schedule = require('./schedule.js')
+const ww = require('./ww.js')
 
 /*    understand/
  * the default entry point - starts the engine!
@@ -30,7 +31,12 @@ function start(log, store) {
 
   function users_1(cb) {
     chat.gettingUsers(store, () => {
-      backend.getUsers(log, store, () => chat.manageUsers(store, cb))
+      backend.getUsers(log, store, () => chat.manageUsers(store, () => {
+        chat.browserSetup(store, () => {
+          ww.set.users(store.getUsers())
+          cb()
+        })
+      }))
     })
   }
 
@@ -50,7 +56,7 @@ function start(log, store) {
  * do the tasks and send updates to the server
  */
 function run(log, store) {
-  const users = store.get("user.users")
+  const users = store.getUsers()
   const last = {
     nothing: 0,
     gotTasks: 0,
@@ -106,19 +112,34 @@ function run(log, store) {
 
   function perform_1(user, card, cb) {
     log("performing/task", { task: card.task })
+    data.log("task/status", {
+      id: card.task.data.id,
+      msg: "task/started",
+      code: 102,
+    }, user.id, log, store, () => {
 
-    const auth = {
-      id: user.id,
-      linkedinUsername: user.linkedinUsername,
-      linkedinPassword: user.linkedinPassword,
-    }
-    chat.performing(store, card.task, () => {
-      ww.x.cute(auth, task)
-        .then(msg => data.log("task/status", card.task, user.id, log, store, cb))
-        .catch(err => {
-          log("err/performing/task", err)
-          chat.errPerforming(store, card.task, cb)
-        })
+      const auth = {
+        id: user.id,
+        linkedinUsername: user.linkedinUsername,
+        linkedinPassword: user.linkedinPassword,
+      }
+      chat.performing(store, card.task, () => {
+        ww.x.cute(auth, card.task)
+          .then(msg => data.log("task/status", {
+            id: card.task.data.id,
+            msg: "task/done",
+            code: 200
+          }, user.id, log, store, cb))
+          .catch(err => {
+            log("err/performing/task", err)
+            data.log("task/status", {
+              id: card.task.data.id,
+              msg: "task/failed",
+              code: 500
+            }, user.id, log, store, () => chat.errPerforming(store, card.task, cb))
+          })
+      })
+
     })
   }
 
@@ -158,10 +179,11 @@ function run(log, store) {
     function send_update_1(ndx) {
       if(ndx >= users.length) return setTimeout(up_1, delay)
       const user = users[ndx]
-      const tasks = data.get(user.id)
+      const tasks = data.get(user)
       const statuses = get_pending_status_updates_1(tasks)
       if(!statuses || !statuses.length) return send_update_1(ndx+1)
-      backend.sendStatuses(user, statuses, ok => {
+      chat.say(store, `Sending updates to server...`)
+      backend.sendStatuses(log, store, user, statuses, ok => {
         if(ok) markCompleted(user.id, statuses)
         send_update_1(ndx+1)
       })
@@ -185,6 +207,9 @@ function run(log, store) {
         for(let i = 0;i < task.steps.length;i++) {
           const task_ = task.steps[i]
           if(task_.e !== "task/status") continue
+          if(!task_.data) continue
+          if(task_.data.code < 200) continue
+          if(task_.data.code == 202) continue
           updt.status = task_.data.code === 200 ? "success" : "failed"
           if(task_.data.notify) updt.notify = task_.data.notify
           else delete updt.notify

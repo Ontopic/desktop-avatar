@@ -61,7 +61,7 @@ Please check the log file: ${log.getName()} for more details
 
 }
 
-function sendStatuses(user, statusUpdates, cb) {
+function sendStatuses(log, store, user, statusUpdates, cb) {
   log("trace/backend/sendstatus")
   const serverURL = store.get("settings.serverURL")
   let p = `${serverURL}/dapp/v2/status`

@@ -196,11 +196,20 @@ function nothingToDo(store, cb) {
 }
 
 function performing(store, task, cb) {
-  say(store, `Performing ${task.action}...`, cb)
+  say(store, `Performing ${task.data.action}...`, cb)
 }
 
 function errPerforming(store, task, cb) {
-  say(store, `Error: Performing ${task.action}...`, cb)
+  say(store, `Error: Performing ${task.data.action}...`, cb)
+}
+
+function browserSetup(store, cb) {
+  const opts = [
+    "Setting up the browser...",
+    "Let me connect up the browser...",
+    "Initializing the browser...",
+  ]
+  say(store, dh.oneOf(opts) + dh.anEmoji("world"), cb)
 }
 
 /*    way/
@@ -295,6 +304,7 @@ module.exports = {
   nothingToDo,
   performing,
   errPerforming,
+  browserSetup,
 
   say,
 }
