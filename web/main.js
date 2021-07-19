@@ -10,7 +10,7 @@ const toolbar = require('./toolbar.js')
 const logview = require('./logview.js')
 const login = require('./login.js')
 const home = require('./home.js')
-const avatar = require('./avatar/')
+const engine = require('./engine/')
 
 import "./main.scss"
 
@@ -22,7 +22,7 @@ import "./main.scss"
  * debugging) then get the setting we need from the
  * main process (basically logname and debug/release
  * mode) then set up the log, ui, polling, IPC handlers
- * and finally start up the avatar.
+ * and finally start up the engine.
  */
 function main() {
   window.STORE = store
@@ -33,7 +33,7 @@ function main() {
     setupPolling(log, store)
     setupTimer(log, store)
     setupIPC(log, store)
-    avatar.start(log, store)
+    engine.start(log, store)
   })
 }
 
@@ -71,7 +71,7 @@ function showUI(log, store) {
     if(!ui) {
       window.autologin.getLoginInfo()
       .then((result)=>{
-        if(result == null){       
+        if(result == null){
          curr.page =  login.e(log, curr.store)
          main.c(curr.page)
          if(document.getElementById("loader"))document.getElementById("loader").remove();
@@ -85,7 +85,7 @@ function showUI(log, store) {
      }else{
        curr.page = home.e(ui, log, curr.store)
        main.c(curr.page)
-     } 
+     }
   })
 
 }
@@ -136,9 +136,7 @@ function setupIPC(log, store) {
     let ui = store.get('user.ui')
     if(!ui) window.set.users(null)
     else {
-      let users = store.get('user.users')
-      if(!users) users = [ ui ]
-      else users = users.concat(ui)
+      let users = store.getUsers()
       window.set.users(users)
     }
   }
