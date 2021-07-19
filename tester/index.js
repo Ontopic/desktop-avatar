@@ -2,12 +2,14 @@
 const express = require('express')
 const app = express()
 const babydb = require('baby-db')
+const cors = require('cors')
 
 const port = 5555
 
 const users = require('./users.js')
 const tasks = require('./tasks.js')
 
+app.use(cors())
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
