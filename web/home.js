@@ -80,23 +80,23 @@ function e(ui, log, store) {
     filterBox.c(h(".container",[
       " From:",
       h('input',{
-        id="fromDate",
+        id:"fromDate",
         type: "date",
         name: "",
         min:""
         }),
         " To:",
       h('input',{
-        id="toDate",
+        id:"toDate",
         type: "date",
         name: "",
         max:""
         }),
         h("span",[
           h('input.btn.btn-info"',{
-            type="submit",
-            value="apply",
-            id="submitBtn",
+            type:"submit",
+            value:"apply",
+            id:"submitBtn",
             onclick: () => dateFilterData()
           }), 
           h("button#rmbtn", {
@@ -168,7 +168,7 @@ function e(ui, log, store) {
       appliedDateFilter[1]=endDate   
       writeTable(workreportArr,tbl,appliedDateFilter) 
     }
-  
+
     function adjustTime(endDate){
       var date= new Date(endDate)
       date.setHours(date.getHours() + 23)
@@ -179,19 +179,19 @@ function e(ui, log, store) {
     }
     function writeTable(inpArr,tbl,appliedDateFilter){
       if(!removed){
-      if(appliedDateFilter.length>0){
-        if(appliedDateFilter[0] !='' && appliedDateFilter[1] !=''){
-          // endDate = adjustTime(endDate)
-          if(inpArr.length>0){
-            inpArr =[... inpArr.filter((obj)=>{
-            return obj.date >= appliedDateFilter[0] && obj.date <= appliedDateFilter[1]
-          })]
+        if(appliedDateFilter.length>0){
+          if(appliedDateFilter[0] !='' && appliedDateFilter[1] !=''){
+            // endDate = adjustTime(endDate)
+            if(inpArr.length>0){
+              inpArr =[... inpArr.filter((obj)=>{
+                return obj.date >= appliedDateFilter[0] && obj.date <= appliedDateFilter[1]
+              })]
+            }
+            document.getElementById('fromDate').value=isotoDate(appliedDateFilter[0])
+            document.getElementById('toDate').value=isotoDate(appliedDateFilter[1])
           }
-           document.getElementById('fromDate').value=isotoDate(appliedDateFilter[0])
-           document.getElementById('toDate').value=isotoDate(appliedDateFilter[1])
         }
       }
-    }
       if(tbl){
         tbl.remove();
         tbl = h("table")
@@ -206,30 +206,30 @@ function e(ui, log, store) {
         ])
         worktable.c(
           tbl.c(hdr)
-        )        
-      inpArr.forEach(el => {
-        tbl.add(h("tr", [
-          h("td.on", el.date.replace("T", "<br/>")),
-          h("td", el.id),
-          h("td", el.userid),
-          h("td", el.taction),
-          h("td.details", el.details),
-          h("td", el.statmsg),
-           el.action
-        ]))
-      })
+        )
+        inpArr.forEach(el => {
+          tbl.add(h("tr", [
+            h("td.on", el.date.replace("T", "<br/>")),
+            h("td", el.id),
+            h("td", el.userid),
+            h("td", el.taction),
+            h("td.details", el.details),
+            h("td", el.statmsg),
+            el.action
+          ]))
+        })
       }
     }
 
-   function isotoDate(dt){
-    date = new Date(dt);
-    year = date.getFullYear();
-    month = date.getMonth()+1;
-    dt = date.getDate();
-    if (dt < 10)  dt = '0' + dt;
-    if (month < 10)  month = '0' + month;
-    return year+'-' + month + '-'+dt
-   }
+    function isotoDate(dt){
+      date = new Date(dt);
+      year = date.getFullYear();
+      month = date.getMonth()+1;
+      dt = date.getDate();
+      if (dt < 10)  dt = '0' + dt;
+      if (month < 10)  month = '0' + month;
+      return year+'-' + month + '-'+dt
+    }
 
     function removeFilter(){
       removed=true
@@ -239,7 +239,7 @@ function e(ui, log, store) {
       document.getElementById('rmbtn').style.visibility='hidden'
     }
   }
-  
+
   function show_users_1() {
     if(ustore) ustore.destroy()
     ustore = store.ffork()
@@ -460,7 +460,7 @@ function e(ui, log, store) {
     if(ui.pic) return h('img.usericon', { src: ui.pic })
     else return h('.usericon', dh.userName(ui)[0])
   }
- }
+}
 
 module.exports = {
   e
