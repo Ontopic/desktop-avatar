@@ -28,5 +28,8 @@ module.exports = {
   add: {
     tasks: tasks => plugins.add(tasks),
     sent: tasks => plugins.sent(tasks),
+  },
+  set: {
+    users: users_ => users.set(users_)
   }
 }
