@@ -36,7 +36,6 @@ function main() {
         if(err) {
           chat.say.settingsFailed(err, () => process.exit(1))
         } else {
-          setUsers(store)
           login(log, store, err => {
             if(err) chat.say.loginFailed(err, () => process.exit(1))
             else engine.start(log, store)
@@ -66,23 +65,6 @@ function setupFolders(store, cb) {
     if(err) cb(err)
     else util.ensureExists(loc.savedCookies(), cb)
   })
-}
-
-function setUsers(store) {
-  store.react('user.ui', set_users_1)
-  store.react("user.users", set_users_1)
-
-  function set_users_1() {
-    let ui = store.get('user.ui')
-    if(!ui) users.set(null)
-    else {
-      let users_ = store.get('user.users')
-      if(!users_) users_ = [ ui ]
-      else users_ = users_.concat(ui)
-      users.set(users_)
-    }
-  }
-
 }
 
 main()

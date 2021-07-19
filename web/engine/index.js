@@ -124,7 +124,7 @@ function run(log, store) {
         linkedinPassword: user.linkedinPassword,
       }
       chat.performing(store, card.task, () => {
-        ww.x.cute(auth, card.task)
+        ww.x.cute(auth, card.task.data)
           .then(msg => data.log("task/status", {
             id: card.task.data.id,
             msg: "task/done",
