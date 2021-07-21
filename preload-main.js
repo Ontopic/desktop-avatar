@@ -8,6 +8,9 @@ const { ipcRenderer, contextBridge } = require('electron')
 contextBridge.exposeInMainWorld("show", {
   settings: () => ipcRenderer.invoke("show-settings"),
   trouble: () => ipcRenderer.invoke("trouble"),
+  cookie:()=>ipcRenderer.invoke('show-cookie'),
+  linkedin:()=>ipcRenderer.invoke('show-linkedin'),
+  devTools : () => ipcRenderer.invoke("open-devtools")
 })
 contextBridge.exposeInMainWorld("get", {
   logname : () => ipcRenderer.invoke("get-logname"),
@@ -41,4 +44,7 @@ contextBridge.exposeInMainWorld("autologin", {
 })
 contextBridge.exposeInMainWorld("logout", {
   removeInfo: () => ipcRenderer.invoke("remove-logininfo")
+})
+contextBridge.exposeInMainWorld("save", {
+  userlinkedin: (u,p) => ipcRenderer.invoke('save-userlinkedin',{u,p})
 })

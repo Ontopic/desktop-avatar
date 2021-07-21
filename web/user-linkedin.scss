@@ -36,8 +36,8 @@ body {
   font-style: italic;
 }
 
-.form {
-  padding: 8px;
+.linkedin-form {
+  padding: 36px;
 
   .label {
     margin-top: 14px;
@@ -67,7 +67,7 @@ body {
   }
   #btn {
     display: inline-block;
-    width: 30%;
+    width: 20%;
     text-align: center;
     margin: 0 auto;
     border-radius: 4px;
@@ -80,7 +80,6 @@ body {
     background: lighten($deepblue,8%);
   }
 }
-
 #errmsg{
   color:red;
 }

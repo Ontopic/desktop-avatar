@@ -28,6 +28,7 @@ function getTaskname(action) {
  */
 function e(ui, log, store) {
   if(document.getElementById("loader"))document.getElementById("loader").remove()
+  document.getElementsByClassName('toolbar')[0].remove()
   let page = h('.page')
   let header = h('.header')
   let reports = h(".reports")
@@ -45,24 +46,100 @@ function e(ui, log, store) {
     worktable
   )
   let reportpane = h('.reportpane').c(
-    h('.title', [
-      "Work Reports ",
-      h("span.open", {
-        onclick: () => workreports.classList.add("visible"),
-      }, "Open")
-    ]),
     reports
   )
 
   page.c(
     header.c(
-      h("img", { src: "./salesboxai-logo.png" })
+      h("img", { src: "./salesboxai-logo.png" }),
+      h(".navbar",
+        [h('#menu',[
+          h("a.active #a1","Home"),
+          h("a#a2", {
+            onclick:()=>setActiveLink("a2")},"Work Reports"),
+          h("a#a3", {
+            onclick:()=>{
+              setActiveLink("a3")
+            } },"Settings"),
+          h("a#a4", {
+            onclick: () =>  setActiveLink("a4")},"Developer Tools"),
+        ]),
+        h('.dropdown',[
+        h('button.dropbtn',{
+          onclick: () => showDropDowns()    
+        },[dh.userName(ui),
+        h("i.fa fa-caret-down"),
+        h('span.avatarimg',[
+          h("img.usr-avatar-img",{
+            src: "./default-user-image.png" 
+          }
+          )
+        ])
+      ]
+      ),
+      h('.dropdown-content #myDropdown',[
+        h("a", {
+          onclick: () => {
+            window.show.linkedin()
+          },style:
+          {"color":"black","position":"relative","width":"100%","text-align":"left"}
+          },"Linkedin Credentials"),
+        h("a", {
+          onclick: () => {
+            window.show.cookie()
+          },
+          style:
+             {"color":"black","position":"relative","width":"100%","text-align":"left"}
+            },"User Cookies"),
+        h("a", {
+          onclick: () => {
+            page.classList.add("bye")
+            window.logout.removeInfo()
+            setTimeout(() => window.x.it(), 350)
+          },
+          style:
+          {"color":"black","position":"relative","width":"100%","text-align":"left"}
+        },"Logout and Exit")]),
+          h("img", { 
+              src: "./grid.svg",
+              style:{
+                "padding":"7px",
+                "cursor":"pointer" 
+              },onclick:() =>{
+                store.event("logview/show")
+          }})
+          ])
+        ]),
+    
     ),
-    user_pane_1(),
     avatar_pane_1(),
     reportpane,
     workreports,
   )
+
+  function showDropDowns(){
+    document.getElementById("myDropdown").classList.toggle("show")
+    window.onclick = function(e) {
+      if (!e.target.matches('.dropbtn')) {
+      var myDropdown = document.getElementById("myDropdown")
+        if (myDropdown.classList.contains('show')) {
+          myDropdown.classList.remove('show')
+        }
+      }
+    }
+  }
+
+  function setActiveLink(setActive){
+    if("a2"==setActive) workreports.classList.add("visible")
+    if("a3"==setActive) window.show.settings()
+    if("a4"==setActive) window.show.devTools()
+    var links = document.querySelectorAll("#menu a");
+    Array.prototype.map.call(links, function(e) {        
+        e.className = "";
+        if (e.id == setActive)  e.className = "active";
+    })
+}
+
   let ustore
   store.react("user.ui", show_users_1)
   store.react("user.users", show_users_1)
@@ -260,6 +337,8 @@ function e(ui, log, store) {
       h("th", "In Progress"),
       h("th", "Success"),
       h("th", "Failure"),
+      h("th","Limit"),
+      h("th","Left")
     ])
 
     cont.c(
@@ -300,6 +379,8 @@ function e(ui, log, store) {
           h("td", summary[action].inprogress),
           h("td", summary[action].success),
           h("td", summary[action].failure),
+          h("td",summary[action].limit),
+          h("td",summary[action].left)
         ]))
       }
     }
@@ -430,36 +511,6 @@ function e(ui, log, store) {
     return r_1(secs, "second")
   }
 
-  function user_pane_1() {
-    let cont = h('.userpane')
-    let icon = icon_1(ui)
-    let name = h('.name', dh.userName(ui))
-    let tz = h('.tz', dh.timeZone(ui))
-    let email = h('.email', ui.email)
-    let linkedin = h('.linkedin', ui.linkedin)
-
-    let logout = h('.logout.btn', {
-      onclick: () => {
-        page.classList.add("bye")
-        window.logout.removeInfo()
-        setTimeout(() => window.x.it(), 350)
-      }
-    }, "Logout and Exit")
-
-
-    cont.c(icon, name, tz,
-      h(".clearfix"),
-      email, linkedin,
-      logout
-    )
-
-    return cont
-  }
-
-  function icon_1(ui) {
-    if(ui.pic) return h('img.usericon', { src: ui.pic })
-    else return h('.usericon', dh.userName(ui)[0])
-  }
 }
 
 module.exports = {

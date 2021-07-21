@@ -113,6 +113,32 @@ function createCookieWin() {
   loadWin("user-cookie.html", wins.cookie)
 }
 
+/*for the user to  save their LinkedIn credentials*/
+function createLinkedInCredentialWin() {
+  if(wins.linkedIn) return wins.linkedIn.focus()
+  wins.linkedIn = new BrowserWindow({
+    width: 600,
+    height: 600,
+    resizable: false,
+    webPreferences: {
+      preload: path.join(__dirname, "preload-main.js"),
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+    },
+    backgroundColor: "#0490f9",
+  })
+
+  wins.linkedIn.on("close", () => wins.linkedIn = null)
+
+  wins.linkedIn.webContents.on("will-navigate", (e, url) => {
+    if(url && url.indexOf("src=desktop-avatar") > 0) {
+      e.preventDefault()
+      shell.openExternal(url)
+    }
+  })
+  loadWin("user-linkedin.html", wins.linkedIn)
+}
 
 /*    problem/
  * In dev mode we want to use the parcel development server so we can
@@ -139,11 +165,17 @@ function None() {
   return BrowserWindow.getAllWindows().length == 0
 }
 
+function openDevTools () {
+ wins.main.webContents.openDevTools()
+}
+
 module.exports = {
   Main: createMainWin,
   Settings: createSettingsWin,
   UserCookie: createCookieWin,
+  LinkedInCredenditals:createLinkedInCredentialWin,
   closeSettings,
   None,
+  openDevTools
 }
 
