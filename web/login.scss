@@ -61,3 +61,82 @@
 .loginForm.err {
   animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
 }
+
+*{
+  margin: 0%;
+  padding: 0%;
+  box-sizing: border-box;
+  }
+  
+  .column {
+    float: left;
+    padding: 10px;
+    height: 625px; 
+  }
+  .left {
+    width: 35%;
+    background-color: #f3f5f6;
+  }
+  .right {
+    width: 65%;
+    background-color: #fff;
+  }
+ 
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+.row{
+  border-radius: 30px;
+}
+.submit{
+  border:none;
+  outline: none;
+  height: 40px;
+  width: 100%;
+  border-radius: 4px;
+  background-color: #0747a6;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+.my-3 {
+  margin-top: 1rem!important;
+  margin-bottom: 1rem!important;
+}
+.form-control {
+  display: block;
+  width: 100%;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: .25rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.form_container{
+  padding: 78px 200px;
+  margin-top: 50px; 
+}
+h1{
+  text-align: center;
+}
+h4{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+#errmsg{
+  color: red;
+}

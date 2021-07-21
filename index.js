@@ -151,6 +151,22 @@ function setupIPC(log) {
   ipcMain.handle("remove-logininfo", async () => {
     login.removeLoginInfo()
   })
+
+  ipcMain.handle("show-cookie", async () => {
+    wins.UserCookie()
+  })
+
+  ipcMain.handle("show-linkedin", async () => {
+    wins.LinkedInCredenditals()
+  })
+
+  ipcMain.handle("save-userlinkedin", async (e,{u,p}) => {
+    users.saveLinkedInCredentials(u,p)
+  })
+
+  ipcMain.handle("open-devtools", () => {
+    wins.openDevTools()
+  })
 }
 
 /*    way/

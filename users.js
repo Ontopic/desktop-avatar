@@ -2,6 +2,8 @@
 const fs = require('fs').promises
 const puppeteer = require('puppeteer')
 const loc = require('./loc.js')
+var CryptoJS = require("crypto-js");
+const path = require('path')
 
 /*    understand/
  * keep track of the users and their browsers
@@ -415,6 +417,21 @@ function saveCookieFile(info) {
   })
 }
 
+/*save linkedin credentials*/
+
+function saveLinkedInCredentials(usr,pwd) {
+  const f = path.join(loc.home(), "linkedincredentials.json")
+  var ciphertext = CryptoJS.AES.encrypt(pwd, 'secret key 123').toString(); 
+    var obj = {
+          username : usr,
+          password: ciphertext
+        }
+        fs.writeFile(f, JSON.stringify(obj), 'utf8', function (err) {
+          if (err) {
+            return console.log(err);
+          }
+        })
+}
 module.exports = {
   set,
   get,
@@ -427,7 +444,7 @@ module.exports = {
   closeBrowsers,
   info,
   saveCookieFile,
-
+  saveLinkedInCredentials,
   NEEDS_CAPTCHA,
   LOGIN_ERR,
   PREMIUM_ERR,
