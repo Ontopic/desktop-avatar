@@ -21,7 +21,7 @@ function e(log, store) {
       "margin-top":"10px"
     }}),
     h("br"),
-    h("h4", "Welcome to Desktop Avatar"),
+    h("h4", "Welcome to SalesBot"),
     img
   ])
   
