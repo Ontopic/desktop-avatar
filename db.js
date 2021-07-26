@@ -15,7 +15,7 @@ function start(log, cb) {
 }
 
 /*    problem/
- * We support multiple instances of the desktop avatar. At the same
+ * We support multiple instances of the SalesBot. At the same
  * time, we don't want them stomping over each other's data.
  *
  *    way/

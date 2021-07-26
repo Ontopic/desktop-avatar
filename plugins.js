@@ -269,7 +269,7 @@ function performTask(auth, task, cb) {
             icon: path.join(__dirname, './build/icon.iconset/icon_16x16@2x.png'),
             sound: true,
             wait: true,
-            appName: "SalesboxAI Desktop Avatar"
+            appName: "SalesboxAI SalesBot"
           })
           quit()
           return cb("Need CAPCHA")
@@ -282,7 +282,7 @@ function performTask(auth, task, cb) {
             icon: path.join(__dirname, './build/icon.iconset/icon_16x16@2x.png'),
             sound: true,
             wait: true,
-            appName: "Salesbox Desktop Avatar"
+            appName: "Salesbox SalesBot"
           })
           quit()
           return cb(`Invalid Linkedin credential`)
@@ -295,7 +295,7 @@ function performTask(auth, task, cb) {
             icon: path.join(__dirname, './build/icon.iconset/icon_16x16@2x.png'),
             sound: true,
             wait: true,
-            appName: "Salesbox Desktop Avatar"
+            appName: "Salesbox SalesBot"
           })
           quit()
           return cb("You need a Sales Navigator or Premium account")
@@ -308,7 +308,7 @@ function performTask(auth, task, cb) {
             icon: path.join(__dirname, './build/icon.iconset/icon_16x16@2x.png'),
             sound: true,
             wait: true,
-            appName: "Salesbox Desktop Avatar"
+            appName: "Salesbox SalesBot"
           })
           quit()
           return cb(`Cookie expired for User ${task.userId}. Please add new cookie string.`)
@@ -321,7 +321,7 @@ function performTask(auth, task, cb) {
             icon: path.join(__dirname, './build/icon.iconset/icon_16x16@2x.png'),
             sound: true,
             wait: true,
-            appName: "Salesbox Desktop Avatar"
+            appName: "Salesbox SalesBot"
           })
           quit()
           return cb(`Linkedin detected suspicious activity for User ${task.userId}. Check respective mail and enter verification code`)

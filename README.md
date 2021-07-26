@@ -1,6 +1,6 @@
-# Salesbox Desktop Avatar
+# Salesbox SalesBot
 
-This is the new version of the Salesbox Desktop Avatar - a local application that helps users perform sales/marketing activities auto-magically.
+This is the new version of the Salesbox SalesBot - a local application that helps users perform sales/marketing activities auto-magically.
 
 ![icon](./bothead.png)
 

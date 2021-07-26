@@ -7,7 +7,7 @@ const util = require('./util.js')
  * configuration files, data etc
  */
 function home() {
-  if(process.env.DESKTOP_AVATAR_HOME) return process.env.DESKTOP_AVATAR_HOME
+  if(process.env.SALESBOT_HOME) return process.env.SALESBOT_HOME
 
   let root = process.env.APPDATA
   if(root) {
@@ -15,7 +15,7 @@ function home() {
   } else {
     root = process.env.HOME
   }
-  return path.join(root, "desktop-avatar")
+  return path.join(root, "SalesBot")
 }
 
 /*    outcome/

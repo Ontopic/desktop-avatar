@@ -1,7 +1,7 @@
 {
-  "name": "desktop-avatar",
+  "name": "SalesBot",
   "version": "2.2.0",
-  "description": "The new/server version of the Salesbox Desktop Avatar",
+  "description": "The new/server version of the Salesbox SalesBot",
   "scripts": {
     "start": "electron .",
     "clean": "node scripts/clean.js",
