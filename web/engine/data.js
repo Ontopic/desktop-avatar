@@ -119,6 +119,7 @@ function process(rec, tasks, log, store) {
       return
     }
     switch(code) {
+      case 101: return task_updt_status_1("beg", "scheduled", task)
       case 102: return task_updt_status_1("beg", "started", task)
       case 200: return task_updt_status_1("fin", "successful", task)
       case 202: return task_updt_status_1("sent", "closed", task)
@@ -147,6 +148,7 @@ function process(rec, tasks, log, store) {
     }
     inserted.last = msg
     const t = tt_1(task)
+    task.data.t = task.t
     if(inserted[k] < t) inserted[k] = t
     store.event("status/add", task.data)
     return true

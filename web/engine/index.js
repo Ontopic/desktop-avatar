@@ -117,8 +117,8 @@ function run(log, store) {
     log("performing/task", { task: card.task })
     data.log("task/status", {
       id: card.task.data.id,
-      msg: "task/started",
-      code: 102,
+      msg: "task/scheduled",
+      code: 101,
     }, user.id, log, store, () => {
 
       const auth = {
@@ -128,11 +128,7 @@ function run(log, store) {
       }
       chat.performing(store, card.task, () => {
         ww.x.cute(auth, card.task.data)
-          .then(msg => data.log("task/status", {
-            id: card.task.data.id,
-            msg: "task/done",
-            code: 200
-          }, user.id, log, store, cb))
+          .then(msg => cb())
           .catch(err => {
             log("err/performing/task", err)
             data.log("task/status", {
