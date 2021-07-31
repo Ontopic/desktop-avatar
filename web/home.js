@@ -2,6 +2,7 @@
 const { h } = require('@tpp/htm-x')
 
 const dh = require('../display-helpers.js')
+const data = require('./engine/data.js')
 
 import "./home.scss"
 
@@ -54,7 +55,7 @@ function e(ui, log, store) {
       h("img", { src: "./salesboxai-logo.png" }),
       h(".navbar",
         [h('#menu',[
-          h("a.active #a1","Home"),
+          h("a.active #a1",{ onclick:()=>setActiveLink("a1")},"Home"),
           h("a#a2", {
             onclick:()=>setActiveLink("a2")},"Work Reports"),
           h("a#a3", {
@@ -130,6 +131,7 @@ function e(ui, log, store) {
   }
 
   function setActiveLink(setActive){
+    if("a1"==setActive) e.className = "active"
     if("a2"==setActive) workreports.classList.add("visible")
     if("a3"==setActive) window.show.settings()
     if("a4"==setActive) window.show.devTools()
@@ -149,10 +151,21 @@ function e(ui, log, store) {
 
   return page
 
+  function getReportArr(){
+    let db = data.get();
+      var tasks = [];
+      for (const task in db[ui.id]) {
+        db[ui.id][task].taskid = parseInt(task);
+        tasks.push(db[ui.id][task]);
+      }
+    return tasks
+  }
+
   function load_work_table_1() {
     if(wstore) wstore.destroy()
     wstore = store.ffork()
-    let workreportArr=[];
+    let workreportArrSource= getReportArr()
+    let workreportArr =[];
     let removed=false
     filterBox.c(h(".container",[
       " From:",
@@ -182,9 +195,9 @@ function e(ui, log, store) {
         ])
     ]))
     let tbl = h("table")
-    const tasks = wstore.get("user.tasks")
-    tasks.forEach(task => {
-      let status = store.getTaskStatus(task.id, 202)
+
+    workreportArrSource.map(x=>{
+      let status = store.getTaskStatus(x.taskid, 202)
       if(!status) status = {
         t: (new Date()).toISOString(),
         msg: "task/new",
@@ -192,7 +205,7 @@ function e(ui, log, store) {
       let statusmsg = status.err ? "task/FAILED" : status.msg
       if(!statusmsg) statusmsg = ""
       else statusmsg = statusmsg.replace("/dummy", "")
-      const details = JSON.stringify(task, (k, v) => {
+       const details = JSON.stringify(x.steps[0].data, (k, v) => {
         const ignore = [ "id", "userId", "action" ]
         if(ignore.indexOf(k) !== -1) return undefined
         if(!v) return undefined
@@ -202,33 +215,36 @@ function e(ui, log, store) {
         }
         return v
       }, 2)
+
       let action = h("td.action", "")
       if(status.code > 299) {
         action = h("td.action", {
           onclick: () => {
-            window.x.cute2(task)
+            window.x.cute2(x.steps[0].data)
               .then(() => 1)
               .catch(err => console.error(err))
             store.event("status/add", {
               t: (new Date()).toISOString(),
-              id: task.id,
+              id: x.taskid,
               msg: "task/retry/dummy",
               code: 0,
             })
           },
         }, "retry")
       }
+
       let task_rw={
-        date:  status.t,
-        id:task.id,
-        userid:task.userId,
-        taction:task.action,
+        date:  x.steps[0].t,
+        id:x.taskid,
+        userid:ui.id,
+        taction:x.steps[0].data.action,
         details:details,
         statmsg:statusmsg,
         action:action
       }
       workreportArr.push(task_rw)
     })
+
     if(workreportArr.length>0){
       writeTable(workreportArr,tbl,appliedDateFilter)
     }
@@ -353,41 +369,47 @@ function e(ui, log, store) {
     return cont
 
     function show_status_1() {
-      tbl.c(hdr)
-      const tasks = store.getTasks(ui.id)
-      let summary = {}
-      for(let i = 0;i < tasks.length;i++) {
-        let curr = tasks[i].action
-        if(!summary[curr]) summary[curr] = {
-          assigned: 1,
-          inprogress: 0,
-          success: 0,
-          failure: 0
-        }
-        else summary[curr].assigned++
-        let status = status_1(tasks[i])
-        if(status) summary[curr][status]++
+      let userReport = getReportArr()
+       tbl.c(hdr);
+      let summary = {};
+      
+      for (let i = 0; i < userReport.length; i++) {
+        let curr = userReport[i].steps[0].data.action;
+        if (!summary[curr]) {
+          summary[curr] = {
+            assigned: 1,
+            inprogress: 0,
+            success: 0,
+            failure: 0,
+          };
+        } else summary[curr].assigned++;
+        let status = status_1(userReport[i].taskid);
+        if (status) summary[curr][status]++;
       }
-      for(let action in summary) {
-        let name = h("td", action)
+
+      
+      for (let action in summary) {
+        let name = h("td", action);
         getTaskname(action)
-          .then(n => name.innerText = n)
-          .catch(e => console.error(e))
-        tbl.add(h("tr", [
-          name,
-          h("td", summary[action].assigned),
-          h("td", summary[action].inprogress),
-          h("td", summary[action].success),
-          h("td", summary[action].failure),
-          h("td",summary[action].limit),
-          h("td",summary[action].left)
-        ]))
+          .then((n) => (name.innerText = n))
+          .catch((e) => console.error(e));
+        tbl.add(
+          h("tr", [
+            name,
+            h("td", summary[action].assigned),
+            h("td", summary[action].inprogress),
+            h("td", summary[action].success),
+            h("td", summary[action].failure),
+            h("td", summary[action].limit),
+            h("td", summary[action].left),
+          ])
+        );
       }
     }
   }
 
-  function status_1(task) {
-    const status = store.getTaskStatus(task.id, 202)
+  function status_1(taskid) {
+    const status = store.getTaskStatus(taskid, 202)
     if(!status) return
     if(status.code == 102) return "inprogress"
     if(status.code == 200) return "success"
