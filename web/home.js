@@ -151,12 +151,13 @@ function e(ui, log, store) {
 
   return page
 
-  function getReportArr(){
+  function getReportArr(userid){
     let db = data.get();
       var tasks = [];
-      for (const task in db[ui.id]) {
-        db[ui.id][task].taskid = parseInt(task);
-        tasks.push(db[ui.id][task]);
+      for (const task in db[userid]) {
+        db[userid][task].taskid = parseInt(task);
+        db[userid][task].userid=userid
+        tasks.push(db[userid][task]);
       }
     return tasks
   }
@@ -164,7 +165,14 @@ function e(ui, log, store) {
   function load_work_table_1() {
     if(wstore) wstore.destroy()
     wstore = store.ffork()
-    let workreportArrSource= getReportArr()
+    let workreportArrSource= []
+    const users = store.getUsers() 
+    users.map(user=>{
+      let tasks=getReportArr(user.id)
+      tasks.map(task=>{
+        workreportArrSource.push(task)
+      })
+    })
     let workreportArr =[];
     let removed=false
     filterBox.c(h(".container",[
@@ -195,7 +203,6 @@ function e(ui, log, store) {
         ])
     ]))
     let tbl = h("table")
-
     workreportArrSource.map(x=>{
       let status = store.getTaskStatus(x.taskid, 202)
       if(!status) status = {
@@ -236,7 +243,7 @@ function e(ui, log, store) {
       let task_rw={
         date:  x.steps[0].t,
         id:x.taskid,
-        userid:ui.id,
+        userid:x.userid,
         taction:x.steps[0].data.action,
         details:details,
         statmsg:statusmsg,
@@ -369,7 +376,7 @@ function e(ui, log, store) {
     return cont
 
     function show_status_1() {
-      let userReport = getReportArr()
+      let userReport = getReportArr(ui.id)
        tbl.c(hdr);
       let summary = {};
       
