@@ -1,6 +1,6 @@
 {
   "name": "SalesBot",
-  "version": "2.2.0",
+  "version": "2.5.0",
   "description": "The new/server version of the Salesbox SalesBot",
   "scripts": {
     "start": "electron .",
