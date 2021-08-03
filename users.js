@@ -261,7 +261,10 @@ async function linkedInPage(cfg, auth, browser) {
       
       return true
     }catch(e){
-      console.log(e)
+      if(err.code === 'ENOENT'){
+        return false
+      }
+      else console.log(e)
     }
   }
 
