@@ -238,34 +238,69 @@ async function linkedInPage(cfg, auth, browser) {
     }
   }
 
-  async function auth_login_1(auth, page) {
-    if(!auth.linkedinUsername || !auth.linkedinPassword) throw LOGIN_ERR
-
-    try {
+  // Login from the saved linkedin creds
+  async function creds_login(auth,page){
+    const fs1 = require('fs')
+    try{
+      let creds_f = loc.linkedinCredsFile(auth.id)
+      var cred_obj = JSON.parse(fs1.readFileSync(creds_f, 'utf8'));
+      var username = cred_obj.username
+      var enc_password = cred_obj.password
+      var decrypted = CryptoJS.AES.decrypt(enc_password,'secret key 123')
+      var password = decrypted.toString(CryptoJS.enc.Utf8)
+      
       await page.goto('https://www.linkedin.com/uas/login')
 
       const user_name = "input#username"
       await page.waitForSelector(user_name)
-      await page.type(user_name, auth.linkedinUsername)
-
+      await page.type(user_name, username)
+    
       const pass_word = "input#password"
       await page.waitForSelector(pass_word)
-      await page.type(pass_word, auth.linkedinPassword)
+      await page.type(pass_word, password)
+      
+      return true
+    }catch(e){
+      if(err.code === 'ENOENT'){
+        return false
+      }
+      else console.log(e)
+    }
+  }
 
-      const submitButton = "button.btn__primary--large"
-      await page.waitForSelector(submitButton)
-      await page.click(submitButton)
-      await checkNotNow(page)
-      await page.waitFor('input[role=combobox]',{timeout:90000})
-    } catch(e) {
-      if(e.name == 'TimeoutError'){
-        let ver_code = await check_email_vc_1(page)
-        if(ver_code) throw VC_ERR
-        let login_err = await invalid_cred_check(page)
-        if(login_err) throw LOGIN_ERR
-        if(!ver_code && !login_err) console.log(e)
-      }else{
-        console.log(e)
+  async function auth_login_1(auth, page) {
+    let cred_loggedin = await creds_login(auth,page)
+
+    if(!cred_loggedin){
+      if(!auth.linkedinUsername || !auth.linkedinPassword) throw LOGIN_ERR
+
+      try {
+        await page.goto('https://www.linkedin.com/uas/login')
+
+        const user_name = "input#username"
+        await page.waitForSelector(user_name)
+        await page.type(user_name, auth.linkedinUsername)
+
+        const pass_word = "input#password"
+        await page.waitForSelector(pass_word)
+        await page.type(pass_word, auth.linkedinPassword)
+
+        const submitButton = "button.btn__primary--large"
+        await page.waitForSelector(submitButton)
+        await page.click(submitButton)
+        await checkNotNow(page)
+        await page.waitFor('input[role=combobox]',{timeout:90000})
+
+      }catch(e) {
+        if(e.name == 'TimeoutError'){
+          let ver_code = await check_email_vc_1(page)
+          if(ver_code) throw VC_ERR
+          let login_err = await invalid_cred_check(page)
+          if(login_err) throw LOGIN_ERR
+          if(!ver_code && !login_err) console.log(e)
+        }else{
+          console.log(e)
+        }
       }
     }
   }
@@ -419,18 +454,15 @@ function saveCookieFile(info) {
 
 /*save linkedin credentials*/
 
-function saveLinkedInCredentials(usr,pwd) {
-  const f = path.join(loc.home(), "linkedincredentials.json")
-  var ciphertext = CryptoJS.AES.encrypt(pwd, 'secret key 123').toString(); 
-    var obj = {
-          username : usr,
-          password: ciphertext
-        }
-        fs.writeFile(f, JSON.stringify(obj), 'utf8', function (err) {
-          if (err) {
-            return console.log(err);
-          }
-        })
+function saveLinkedInCredentials(creds) {
+  const f = path.join(loc.linkedinCreds(), `User-${creds.userid}.json`)
+  var ciphertext = CryptoJS.AES.encrypt(creds.password, 'secret key 123').toString(); 
+  creds.password = ciphertext
+  fs.writeFile(f, JSON.stringify(creds), 'utf8', function (err) {
+    if (err) {
+      return console.log(err);
+    }
+  })
 }
 module.exports = {
   set,
