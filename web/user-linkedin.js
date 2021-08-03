@@ -17,13 +17,23 @@ function saveLinkedInCredentials() {
   var usr= username.value
   var password = document.getElementById('pwd');
   var pwd= password.value
-  const err = check(usr, pwd,username,password)
-  if(err) {
-    window.save.userlinkedin(usr,pwd)
+  var userid = document.getElementById('uid');
+  var uid= userid.value
+  const no_err = check(usr,pwd,uid,username,password,userid)
+  if(no_err) {
+    const creds = {
+        username : usr,
+        userid: uid,
+        password: pwd
+        }
+    
+    window.save.userlinkedin(creds)
+    
     .then(() =>  {document.getElementById('errmsg').innerHTML="Saved LinkedIn Credentials";
         document.getElementById('errmsg').style.color='Black'
         document.getElementById('username').value="";
         document.getElementById('pwd').value="";
+        document.getElementById('uid').value =""
     })
     .catch(err => {
         document.getElementById('errmsg').innerHTML="Failed to save LinkedIn Credentials";
@@ -34,7 +44,7 @@ function saveLinkedInCredentials() {
     
 }
 
-function check(usr, pwd,username,password) {
+function check(usr,pwd,uid,username,password,userid) {
     if(!usr && !pwd){
        document.getElementById('errmsg').innerHTML="Username and Pssword is empty"       
         return false
@@ -49,6 +59,11 @@ function check(usr, pwd,username,password) {
         password.focus() ;
         return false
     } 
+    else if(!uid){  
+        document.getElementById('errmsg').innerHTML="UserId is not valid"      
+        userid.focus() ;
+        return false
+    }
     else return true
 
 }

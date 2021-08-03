@@ -142,12 +142,12 @@ async function linkedInPage(cfg, auth, browser) {
   }
   const cookie_f1 = loc.savedCookieFile(auth.id)
   const cookie_f2 = loc.cookieFile(auth.id)
-  const loggedin = await cookie_login_1(cookie_f1, page)
-                    || await cookie_login_1(cookie_f2, page)
-  if(!loggedin) {
+  // const loggedin = await cookie_login_1(cookie_f1, page)
+                    // || await cookie_login_1(cookie_f2, page)
+  // if(!loggedin) {
     await auth_login_1(auth, page)
     await save_login_cookie_1(page, auth)
-  }
+  // }
   //TODO: re-enable this check after QA cycle
   // if(!process.env.DEBUG) await check_premium_enabled_1(page)
   await randomly_scroll_sometimes_1()
@@ -238,19 +238,50 @@ async function linkedInPage(cfg, auth, browser) {
     }
   }
 
-  async function auth_login_1(auth, page) {
-    if(!auth.linkedinUsername || !auth.linkedinPassword) throw LOGIN_ERR
-
-    try {
-      await page.goto('https://www.linkedin.com/uas/login')
-
+  // Login from the saved linkedin creds
+  async function creds_login(auth,page){
+    const fs1 = require('fs')
+    try{
+      let creds_f = loc.linkedinCredsFile(auth.id)
+      var cred_obj = JSON.parse(fs1.readFileSync(creds_f, 'utf8'));
+      console.log(cred_obj)
+      var username = cred_obj.username
+      var enc_password = cred_obj.password
+      var decrypted = CryptoJS.AES.decrypt(enc_password,'secret key 123')
+      var password = decrypted.toString(CryptoJS.enc.Utf8)
+      
       const user_name = "input#username"
       await page.waitForSelector(user_name)
-      await page.type(user_name, auth.linkedinUsername)
-
+      await page.type(user_name, username)
+    
       const pass_word = "input#password"
       await page.waitForSelector(pass_word)
-      await page.type(pass_word, auth.linkedinPassword)
+      await page.type(pass_word, password)
+      
+      return true
+    }catch(e){
+      console.log(e)
+    }
+  }
+
+  async function auth_login_1(auth, page) {
+    try{
+      await page.goto('https://www.linkedin.com/uas/login')
+
+      if(!auth.linkedinUsername || !auth.linkedinPassword) 
+        {
+          let login_success = await creds_login(auth,page)
+          if(!login_success) throw LOGIN_ERR
+        }
+      else{
+        const user_name = "input#username"
+        await page.waitForSelector(user_name)
+        await page.type(user_name, auth.linkedinUsername)
+
+        const pass_word = "input#password"
+        await page.waitForSelector(pass_word)
+        await page.type(pass_word, auth.linkedinPassword)
+      }
 
       const submitButton = "button.btn__primary--large"
       await page.waitForSelector(submitButton)
@@ -419,18 +450,16 @@ function saveCookieFile(info) {
 
 /*save linkedin credentials*/
 
-function saveLinkedInCredentials(usr,pwd) {
-  const f = path.join(loc.home(), "linkedincredentials.json")
-  var ciphertext = CryptoJS.AES.encrypt(pwd, 'secret key 123').toString(); 
-    var obj = {
-          username : usr,
-          password: ciphertext
-        }
-        fs.writeFile(f, JSON.stringify(obj), 'utf8', function (err) {
-          if (err) {
-            return console.log(err);
-          }
-        })
+function saveLinkedInCredentials(creds) {
+  console.log(creds)
+  const f = path.join(loc.linkedinCreds(), `User-${creds.userid}.json`)
+  var ciphertext = CryptoJS.AES.encrypt(creds.password, 'secret key 123').toString(); 
+  creds.password = ciphertext
+  fs.writeFile(f, JSON.stringify(creds), 'utf8', function (err) {
+    if (err) {
+      return console.log(err);
+    }
+  })
 }
 module.exports = {
   set,

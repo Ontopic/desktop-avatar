@@ -46,5 +46,5 @@ contextBridge.exposeInMainWorld("logout", {
   removeInfo: () => ipcRenderer.invoke("remove-logininfo")
 })
 contextBridge.exposeInMainWorld("save", {
-  userlinkedin: (u,p) => ipcRenderer.invoke('save-userlinkedin',{u,p})
+  userlinkedin: (creds) => ipcRenderer.invoke('save-userlinkedin',creds)
 })

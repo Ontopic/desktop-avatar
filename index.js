@@ -11,7 +11,6 @@ const util = require('./util.js')
 const dbg = require('./dbg.js')
 const fs = require('fs')
 const login =require('./login')
-var CryptoJS = require("crypto-js");
 
 /*    understand/
  * main entry point into our program - called
@@ -160,8 +159,8 @@ function setupIPC(log) {
     wins.LinkedInCredenditals()
   })
 
-  ipcMain.handle("save-userlinkedin", async (e,{u,p}) => {
-    users.saveLinkedInCredentials(u,p)
+  ipcMain.handle("save-userlinkedin", async (e,creds) => {
+    users.saveLinkedInCredentials(creds)
   })
 
   ipcMain.handle("open-devtools", () => {
