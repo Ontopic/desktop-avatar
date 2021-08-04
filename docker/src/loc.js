@@ -61,6 +61,21 @@ function savedCookieFile(userid) {
 }
 
 /*    outcome/
+ * Return the location of the users linkedin creds directory
+ */
+
+function linkedinCreds(){
+  return path.join(home(),`linkedin-creds`)
+}
+
+/*    outcome/
+ * Return the location of the users linkedin creds file
+ */
+
+function linkedinCredsFile(userid){
+  return path.join(linkedinCreds(),`User-${userid}.json` )
+}
+/*    outcome/
  * Return the location of a dumpfile for errors.
  */
 function dmp() {
@@ -76,5 +91,7 @@ module.exports = {
   cookieFile,
   savedCookies,
   savedCookieFile,
+  linkedinCreds,
+  linkedinCredsFile,
   dmp,
 }
