@@ -43,7 +43,12 @@ function onReady() {
 function setupFolders(cb) {
   util.ensureExists(loc.cookies(), err => {
     if(err) cb(err)
-    else util.ensureExists(loc.savedCookies(), cb)
+    else {
+      util.ensureExists(loc.savedCookies(), e =>{
+        if(e) cb(e)
+        else util.ensureExists(loc.linkedinCreds(),cb)
+      })
+    }
   })
 }
 

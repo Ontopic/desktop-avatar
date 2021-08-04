@@ -259,9 +259,15 @@ async function linkedInPage(cfg, auth, browser) {
       await page.waitForSelector(pass_word)
       await page.type(pass_word, password)
       
+      const submitButton = "button.btn__primary--large"
+      await page.waitForSelector(submitButton)
+      await page.click(submitButton)
+
+      await checkNotNow(page)
+    
       return true
     }catch(e){
-      if(err.code === 'ENOENT'){
+      if(e.code === 'ENOENT'){
         return false
       }
       else console.log(e)
