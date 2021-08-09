@@ -41,11 +41,17 @@ function pickStep(task) {
   return pick
 }
 
-function dailyLimitHit(tasks, task) {
-  // TODO
-  return false
+function dailyLimitHit(task_name) {
+    if(task_name=="LINKEDIN_CONNECT") return 30
+    if(task_name=="LINKEDIN_CHECK_CONNECT")  return 15
+    if (task_name=="LINKEDIN_VIEW") return 50
+    if (task_name=="LINKEDIN_DISCONNECT") return 20
+    if (task_name=="LINKEDIN_MSG") return 10
+    if (task_name=="LINKEDIN_CHECK_MSG") return 17
+  
 }
 
 module.exports = {
   get,
+  dailyLimitHit
 }

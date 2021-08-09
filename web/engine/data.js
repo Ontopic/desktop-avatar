@@ -221,10 +221,54 @@ More details should be available in the log file: ${log.getName()}
 `, () => ww.x.it())
 }
 
+
+function getNumberofTasks(userid, store,userReport) {
+  
+    let [...taskArr] = userReport;
+    let taskType = taskArr.map((task) => {
+      let list = task.steps.map((el) => el.data);
+      return list;
+    });
+
+    let finalObj = taskType.map((el) => {
+      let count = 0;
+      const currentTime = Date.now()
+      el.map((att) => {
+        let taskDate = new Date(att.t);
+        const taskTime = taskDate.getTime();
+        const hours = Math.floor((currentTime - taskTime) / 3600000);
+        if (att.code === 202 && hours < 24) {
+          count = count + 1;
+        }
+      });
+      return {
+        id: el[0].id,
+        action: el[0].action,
+        code: el[el.length - 1].code,
+        t: el[el.length - 1].t,
+        attempt: count,
+      };
+    });
+    let attsummary = {};
+    if (finalObj) {
+      for (let i = 0; i < finalObj.length; i++) {
+        let curr = finalObj[i].action;
+        if (!attsummary[curr]) {
+          attsummary[curr] = {
+            attempt: 0,
+          };
+        } else attsummary[curr].attempt++;
+      }
+    }
+    
+  return attsummary;
+}
+
 module.exports = {
   start,
   dbStr,
 
   get,
   log,
+  getNumberofTasks
 }
