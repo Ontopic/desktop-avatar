@@ -98,7 +98,7 @@ function run(log, store) {
       const user = users[ndx]
       const tasks = data.get(user)
       const card = schedule.get(tasks, user)
-      if(card.type === "performing") return cb(true)
+      if(card.type === "performing") return do_ndx_1(ndx+1, cb)
       if(card.type === "too-soon") return do_ndx_1(ndx+1, cb)
       if(card.type === "nothing-to-do") return do_ndx_1(ndx+1, cb)
       if(card.type === "daily-limit-reached") {
