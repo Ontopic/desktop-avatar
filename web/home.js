@@ -380,8 +380,7 @@ function e(ui, log, store) {
       let userReport = getReportArr(ui.id)
        tbl.c(hdr);
       let summary = {};
-      let attsummary = data.getNumberofTasks(ui.id,store,userReport)
- 
+      let userTasksPerDay = data.getTasksPerDay(ui.id)
       for (let i = 0; i < userReport.length; i++) {
         let curr = userReport[i].steps[0].data.action;
         if (!summary[curr]) {
@@ -397,7 +396,7 @@ function e(ui, log, store) {
       }
      
       for (const property in summary) {
-        summary[property].attempt = attsummary[property].attempt
+        summary[property].attempt = userTasksPerDay[property].attempt
       }
 
       

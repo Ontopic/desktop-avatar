@@ -7,7 +7,6 @@ const ww = require('./ww.js')
  * the processed data
  */
 const DB = {}
-
 /*    way/
  * get the user data or the entire db
  */
@@ -222,9 +221,13 @@ More details should be available in the log file: ${log.getName()}
 }
 
 
-function getNumberofTasks(userid, store,userReport) {
-  
-    let [...taskArr] = userReport;
+function getTasksPerDay(userid) {
+  let userTaskArr=DB[userid]
+      let tasks = [];
+      for (const task in userTaskArr) {
+        tasks.push(userTaskArr[task]);
+      }
+    let [...taskArr] = tasks;
     let taskType = taskArr.map((task) => {
       let list = task.steps.map((el) => el.data);
       return list;
@@ -270,5 +273,5 @@ module.exports = {
 
   get,
   log,
-  getNumberofTasks
+  getTasksPerDay
 }
