@@ -273,18 +273,20 @@ function performTask(auth, task, cb) {
       .catch(err => {
         if(err === users.NEEDS_CAPTCHA) {
           
-          var mailOptions = {
-            from: devEmail,
-            to: userEmail,
-            subject: 'Salesbot App Error CAPTCHA Error',
-            text: `Captcha needs to be resolved for user ${task.userId}`
-          };
+          if(userEmail){
+            var mailOptions = {
+              from: devEmail,
+              to: userEmail,
+              subject: 'Salesbot App Error CAPTCHA Error',
+              text: `Captcha needs to be resolved for user ${task.userId}`
+            };
+        
+            tp.sendMail(mailOptions, function(error, info){
+              if (error) log("Email Error: ",error);
+              else log('Error notified to user via email' + info.response);
+            });
+          }
       
-          tp.sendMail(mailOptions, function(error, info){
-            if (error) log("Email Error: ",error);
-            else log('Error notified to user via email' + info.response);
-          });
-
           status_capcha_1("err/task/capcha")
           notifier.notify({
             title: 'CAPTCHA Error',
@@ -299,17 +301,19 @@ function performTask(auth, task, cb) {
         }
         if(err === users.LOGIN_ERR) {
 
-          var mailOptions = {
-            from: devEmail,
-            to: userEmail,
-            subject: 'Salesbot App Error Login Error',
-            text: `Invalid Linkedin credential used for user ${task.userId}`
-          };
+          if(userEmail){
+            var mailOptions = {
+              from: devEmail,
+              to: userEmail,
+              subject: 'Salesbot App Error Login Error',
+              text: `Invalid Linkedin credential used for user ${task.userId}`
+            };
 
-          tp.sendMail(mailOptions, function(error, info){
-            if (error) log("Email Error: ",error);
-            else log('Error notified to user via email' + info.response);
-          });
+            tp.sendMail(mailOptions, function(error, info){
+              if (error) log("Email Error: ",error);
+              else log('Error notified to user via email' + info.response);
+            });
+          }
 
           status_baduser_1("err/login/err")
           notifier.notify({
@@ -324,18 +328,20 @@ function performTask(auth, task, cb) {
           return cb('Invalid Linkedin credential')
         }
         if(err === users.PREMIUM_ERR) {
-
-          var mailOptions = {
-            from: devEmail,
-            to: userEmail,
-            subject: 'Salesbot App Error Premium Error',
-            text: `You need a Sales Navigator or Premium account for user ${task.userId}`
-          };
           
-          tp.sendMail(mailOptions, function(error, info){
-            if (error) log("Email Error: ",error);
-            else log('Error notified to user via email' + info.response);
-          });
+          if(userEmail){
+            var mailOptions = {
+              from: devEmail,
+              to: userEmail,
+              subject: 'Salesbot App Error Premium Error',
+              text: `You need a Sales Navigator or Premium account for user ${task.userId}`
+            };
+            
+            tp.sendMail(mailOptions, function(error, info){
+              if (error) log("Email Error: ",error);
+              else log('Error notified to user via email' + info.response);
+            });
+          }
 
           status_baduser_1("err/need/salesnavigator")
           notifier.notify({
@@ -350,21 +356,22 @@ function performTask(auth, task, cb) {
           return cb("You need a Sales Navigator or Premium account")
         }
         if(err === users.COOKIE_EXP) {
-
-          var mailOptions = {
-            from: devEmail,
-            to: userEmail,
-            subject: 'Salesbot App Cookie Expiry Error',
-            text: `Cookie for user ${task.userId} expired. Please add a new cookie string`
-          };
           
-          tp.sendMail(mailOptions, function(error, info){
-            if (error) log("Email Error: ",error);
-            else log('Error notified to user via email' + info.response);
-          });
+          if(userEmail){
+            var mailOptions = {
+              from: devEmail,
+              to: userEmail,
+              subject: 'Salesbot App Cookie Expiry Error',
+              text: `Cookie for user ${task.userId} expired. Please add a new cookie string`
+            };
+            
+            tp.sendMail(mailOptions, function(error, info){
+              if (error) log("Email Error: ",error);
+              else log('Error notified to user via email' + info.response);
+            });
+          }
 
           status_baduser_1("err/cookie/expired")
-
           notifier.notify({
             title: 'Cookie Error',
             message: `Cookie for user ${task.userId} expired. Please add a new cookie string`,
@@ -377,18 +384,20 @@ function performTask(auth, task, cb) {
           return cb(`Cookie expired for User ${task.userId}. Please add new cookie string.`)
         }
         if(err === users.VC_ERR) {
-
-          var mailOptions = {
-            from: devEmail,
-            to: userEmail,
-            subject: 'Salesbot App Verifcation Code Error',
-            text: `Linkedin detected suspicious activity for User ${task.userId}. Check your mail and enter verification code`
-          };
           
-          tp.sendMail(mailOptions, function(error, info){
-            if (error) log("Email Error: ",error);
-            else log('Error notified to user via email' + info.response);
-          });
+          if(userEmail){
+            var mailOptions = {
+              from: devEmail,
+              to: userEmail,
+              subject: 'Salesbot App Verifcation Code Error',
+              text: `Linkedin detected suspicious activity for User ${task.userId}. Check your mail and enter verification code`
+            };
+            
+            tp.sendMail(mailOptions, function(error, info){
+              if (error) log("Email Error: ",error);
+              else log('Error notified to user via email' + info.response);
+            });
+          }
 
           status_baduser_1("err/task/verification_code")
           notifier.notify({
