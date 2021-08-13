@@ -7,7 +7,6 @@ const ww = require('./ww.js')
  * the processed data
  */
 const DB = {}
-
 /*    way/
  * get the user data or the entire db
  */
@@ -35,10 +34,8 @@ function start(log, store, cb) {
  */
 function startUserDB(user, log, store, cb) {
   if(DB[user.id]) return
-
   const tasks = {}
   DB[user.id] = tasks
-
   const name = `User-${user.id}`
   log(`trace/engine/db/${name}`, "starting")
   const ctrl = kc.get(name, resp => {
@@ -221,10 +218,37 @@ More details should be available in the log file: ${log.getName()}
 `, () => ww.x.it())
 }
 
+
+function getTasksPerDay(userid) {
+  const tasksDoneToday = {}
+
+  const tasks = DB[userid]
+  if(!tasks) return tasksDoneToday
+
+  const currentTime = Date.now()
+  try {
+    for(const task in tasks) {
+      let current_action = null
+      tasks[task].steps.map(t => {
+        if(t.data.action) current_action = t.data.action
+        if(!tasksDoneToday[current_action]) tasksDoneToday[current_action] = 0
+        if(t.data.code != 202) return
+        const tt = (new Date(t.t)).getTime()
+        const hours = Math.floor((currentTime - tt) / 3600000);
+        if(hours < 24) tasksDoneToday[current_action] += 1
+      })
+    }
+    return tasksDoneToday
+  } catch (error) {
+    return {}
+  }
+  
+}
 module.exports = {
   start,
   dbStr,
 
   get,
   log,
+  getTasksPerDay
 }

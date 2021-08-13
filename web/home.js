@@ -3,6 +3,7 @@ const { h } = require('@tpp/htm-x')
 
 const dh = require('../display-helpers.js')
 const data = require('./engine/data.js')
+const schedule = require('./engine/schedule.js')
 
 import "./home.scss"
 
@@ -171,7 +172,7 @@ function e(ui, log, store) {
       let tasks=getReportArr(user.id)
       tasks.map(task=>{
         workreportArrSource.push(task)
-      })
+      }) 
     })
     let workreportArr =[];
     let removed=false
@@ -339,7 +340,7 @@ function e(ui, log, store) {
       document.getElementById('rmbtn').style.visibility='hidden'
     }
   }
-
+ 
   function show_users_1() {
     if(ustore) ustore.destroy()
     ustore = store.ffork()
@@ -379,24 +380,31 @@ function e(ui, log, store) {
       let userReport = getReportArr(ui.id)
        tbl.c(hdr);
       let summary = {};
-      
-      for (let i = 0; i < userReport.length; i++) {
-        let curr = userReport[i].steps[0].data.action;
-        if (!summary[curr]) {
-          summary[curr] = {
-            assigned: 1,
-            inprogress: 0,
-            success: 0,
-            failure: 0,
-          };
-        } else summary[curr].assigned++;
-        let status = status_1(userReport[i].taskid);
-        if (status) summary[curr][status]++;
+      let userTasksPerDay = data.getTasksPerDay(ui.id)
+      if(userTasksPerDay){
+        for (let i = 0; i < userReport.length; i++) {
+          let curr = userReport[i].steps[0].data.action;
+          if (!summary[curr]) {
+            summary[curr] = {
+              assigned: 1,
+              inprogress: 0,
+              success: 0,
+              failure: 0,
+            };
+          } else summary[curr].assigned++;
+          let status = status_1(userReport[i].taskid);
+          if (status) summary[curr][status]++;
+        }
       }
-
       
+     if(summary){
+      for (const property in summary) {
+        summary[property].attempt = userTasksPerDay[property]
+      }
       for (let action in summary) {
         let name = h("td", action);
+        let left = schedule.dailyLimitHit(action)-summary[action].attempt
+        if(left<=0) left = 0;
         getTaskname(action)
           .then((n) => (name.innerText = n))
           .catch((e) => console.error(e));
@@ -407,11 +415,12 @@ function e(ui, log, store) {
             h("td", summary[action].inprogress),
             h("td", summary[action].success),
             h("td", summary[action].failure),
-            h("td", summary[action].limit),
-            h("td", summary[action].left),
+            h("td", schedule.dailyLimitHit(action)),
+            h("td", left),
           ])
         );
       }
+     }
     }
   }
 
