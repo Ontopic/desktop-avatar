@@ -10,6 +10,15 @@ const loc = require('./loc.js')
 const dh = require('./display-helpers.js')
 const users = require('./users.js')
 const lg = require('./logger.js')
+var nm = require('nodemailer');
+const devEmail = "devsalesbot@gmail.com"
+var tp = nm.createTransport({
+  service: 'gmail',
+  auth: {
+    user: devEmail,
+    pass: 'Sbox@2021'
+  }
+});
 
 /*    understand/
  * we hold information about the plugins here so they
@@ -231,6 +240,7 @@ function performTask(auth, task, cb) {
       const cfg = {
         timeout: task.timeout || undefined
       }
+      const userEmail = users.get(task.userId).ui.email
       users.linkedInPage(cfg, auth, browser).then(page => {
 
         getPlugin(task.action, (err, plugin) => {
@@ -262,10 +272,25 @@ function performTask(auth, task, cb) {
       })
       .catch(err => {
         if(err === users.NEEDS_CAPTCHA) {
+          
+          if(userEmail){
+            var mailOptions = {
+              from: devEmail,
+              to: userEmail,
+              subject: 'Salesbot App Error CAPTCHA Error',
+              text: `Captcha needs to be resolved for user ${task.userId}`
+            };
+        
+            tp.sendMail(mailOptions, function(error, info){
+              if (error) log("Email Error: ",error);
+              else log('Error notified to user via email' + info.response);
+            });
+          }
+      
           status_capcha_1("err/task/capcha")
           notifier.notify({
             title: 'CAPTCHA Error',
-            message: 'Captcha needs to be resolved.',
+            message: `Captcha needs to be resolved for user ${task.userId}`,
             icon: path.join(__dirname, './build/icon.iconset/icon_16x16@2x.png'),
             sound: true,
             wait: true,
@@ -275,32 +300,77 @@ function performTask(auth, task, cb) {
           return cb("Need CAPCHA")
         }
         if(err === users.LOGIN_ERR) {
+
+          if(userEmail){
+            var mailOptions = {
+              from: devEmail,
+              to: userEmail,
+              subject: 'Salesbot App Error Login Error',
+              text: `Invalid Linkedin credential used for user ${task.userId}`
+            };
+
+            tp.sendMail(mailOptions, function(error, info){
+              if (error) log("Email Error: ",error);
+              else log('Error notified to user via email' + info.response);
+            });
+          }
+
           status_baduser_1("err/login/err")
           notifier.notify({
             title: 'Login Error',
-            message: 'Invalid Linkedin credential',
+            message: `Invalid Linkedin credential used for user ${task.userId}`,
             icon: path.join(__dirname, './build/icon.iconset/icon_16x16@2x.png'),
             sound: true,
             wait: true,
-            appName: "Salesbox SalesBot"
+            appName: "SalesboxAI SalesBot"
           })
           quit()
-          return cb(`Invalid Linkedin credential`)
+          return cb('Invalid Linkedin credential')
         }
         if(err === users.PREMIUM_ERR) {
+          
+          if(userEmail){
+            var mailOptions = {
+              from: devEmail,
+              to: userEmail,
+              subject: 'Salesbot App Error Premium Error',
+              text: `You need a Sales Navigator or Premium account for user ${task.userId}`
+            };
+            
+            tp.sendMail(mailOptions, function(error, info){
+              if (error) log("Email Error: ",error);
+              else log('Error notified to user via email' + info.response);
+            });
+          }
+
           status_baduser_1("err/need/salesnavigator")
           notifier.notify({
             title: 'Premium Error',
-            message: 'You need a Sales Navigator or Premium account',
+            message: `You need a Sales Navigator or Premium account for user ${task.userId}`,
             icon: path.join(__dirname, './build/icon.iconset/icon_16x16@2x.png'),
             sound: true,
             wait: true,
-            appName: "Salesbox SalesBot"
+            appName: "SalesboxAI SalesBot"
           })
           quit()
           return cb("You need a Sales Navigator or Premium account")
         }
         if(err === users.COOKIE_EXP) {
+          
+          if(userEmail){
+            var mailOptions = {
+              from: devEmail,
+              to: userEmail,
+              subject: 'Salesbot App Cookie Expiry Error',
+              text: `Cookie for user ${task.userId} expired. Please add a new cookie string`
+            };
+            
+            tp.sendMail(mailOptions, function(error, info){
+              if (error) log("Email Error: ",error);
+              else log('Error notified to user via email' + info.response);
+            });
+          }
+
           status_baduser_1("err/cookie/expired")
           notifier.notify({
             title: 'Cookie Error',
@@ -308,20 +378,35 @@ function performTask(auth, task, cb) {
             icon: path.join(__dirname, './build/icon.iconset/icon_16x16@2x.png'),
             sound: true,
             wait: true,
-            appName: "Salesbox SalesBot"
+            appName: "SalesboxAI SalesBot"
           })
           quit()
           return cb(`Cookie expired for User ${task.userId}. Please add new cookie string.`)
         }
         if(err === users.VC_ERR) {
+          
+          if(userEmail){
+            var mailOptions = {
+              from: devEmail,
+              to: userEmail,
+              subject: 'Salesbot App Verifcation Code Error',
+              text: `Linkedin detected suspicious activity for User ${task.userId}. Check your mail and enter verification code`
+            };
+            
+            tp.sendMail(mailOptions, function(error, info){
+              if (error) log("Email Error: ",error);
+              else log('Error notified to user via email' + info.response);
+            });
+          }
+
           status_baduser_1("err/task/verification_code")
           notifier.notify({
             title: 'Verifcation Code',
-            message: `Linkedin detected suspicious activity for User ${task.userId}. Check your mail and enter verification code`,
+            message: `Linkedin detected suspicious activity for User ${task.userId}. Check respective mail and enter verification code`,
             icon: path.join(__dirname, './build/icon.iconset/icon_16x16@2x.png'),
             sound: true,
             wait: true,
-            appName: "Salesbox SalesBot"
+            appName: "SalesboxAI SalesBot"
           })
           quit()
           return cb(`Linkedin detected suspicious activity for User ${task.userId}. Check respective mail and enter verification code`)
