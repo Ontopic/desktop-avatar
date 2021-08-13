@@ -218,7 +218,37 @@ More details should be available in the log file: ${log.getName()}
 `, () => ww.x.it())
 }
 
-
+/*    problem/
+ * return a summary of the number of tasks performed, grouped
+ * by task type (action)
+ *
+ *    understand/
+ * The DB data is stored in a per-user, per-task format with each task update listed in it's "steps" field:
+ *    {
+ *      userid: {
+ *        id1: {
+ *          ...
+ *          steps: {
+ *            { t: "2020-11-02T05:01:13.592Z", e: "task/new", data: { action: "LINKEDIN_VIEW" ...} ...},
+ *            { t: "....", e: "task/status" data: { msg: "task/done", code: 200 ...} ... },
+ *            { t: "....", e: "task/status" data: { msg: "task/completed", code: 202 ...} ... },
+ *            { ... task update ...},
+ *            { ... task update ...},
+ *          }
+ *        },
+ *        id2: ...,
+ *        id3: ...,
+ *      }
+ *
+ *    way/
+ * Walk the steps and count those completed within the last 24
+ * hours against that task action which would return:
+ *    {
+ *       LINKEDIN_VIEW: 25,
+ *       LINKEDIN_CONNECT: 5,
+ *       ...
+ *    }
+ */
 function getTasksPerDay(userid) {
   const tasksDoneToday = {}
 
@@ -226,24 +256,23 @@ function getTasksPerDay(userid) {
   if(!tasks) return tasksDoneToday
 
   const currentTime = Date.now()
-  try {
-    for(const task in tasks) {
-      let current_action = null
-      tasks[task].steps.map(t => {
-        if(t.data.action) current_action = t.data.action
-        if(!tasksDoneToday[current_action]) tasksDoneToday[current_action] = 0
-        if(t.data.code != 202) return
-        const tt = (new Date(t.t)).getTime()
-        const hours = Math.floor((currentTime - tt) / 3600000);
-        if(hours < 24) tasksDoneToday[current_action] += 1
-      })
-    }
-    return tasksDoneToday
-  } catch (error) {
-    return {}
+  for(const taskid in tasks) {
+    let current_action = null
+    tasks[taskid].steps.map(t => {
+      if(!t.data) return
+      if(t.data.action) current_action = t.data.action
+      if(!current_action) return
+      if(!tasksDoneToday[current_action]) tasksDoneToday[current_action] = 0
+      if(t.data.code != 202) return
+      if(!t.t) return
+      const tt = (new Date(t.t)).getTime()
+      const hours = Math.floor((currentTime - tt) / 3600000);
+      if(hours < 24) tasksDoneToday[current_action] += 1
+    })
   }
-  
+  return tasksDoneToday
 }
+
 module.exports = {
   start,
   dbStr,
