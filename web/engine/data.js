@@ -34,10 +34,8 @@ function start(log, store, cb) {
  */
 function startUserDB(user, log, store, cb) {
   if(DB[user.id]) return
-
   const tasks = {}
   DB[user.id] = tasks
-
   const name = `User-${user.id}`
   log(`trace/engine/db/${name}`, "starting")
   const ctrl = kc.get(name, resp => {
@@ -222,51 +220,30 @@ More details should be available in the log file: ${log.getName()}
 
 
 function getTasksPerDay(userid) {
-  let userTaskArr=DB[userid]
-      let tasks = [];
-      for (const task in userTaskArr) {
-        tasks.push(userTaskArr[task]);
-      }
-    let [...taskArr] = tasks;
-    let taskType = taskArr.map((task) => {
-      let list = task.steps.map((el) => el.data);
-      return list;
-    });
+  const tasksDoneToday = {}
 
-    let finalObj = taskType.map((el) => {
-      let count = 0;
-      const currentTime = Date.now()
-      el.map((att) => {
-        let taskDate = new Date(att.t);
-        const taskTime = taskDate.getTime();
-        const hours = Math.floor((currentTime - taskTime) / 3600000);
-        if (att.code === 202 && hours < 24) {
-          count = count + 1;
-        }
-      });
-      return {
-        id: el[0].id,
-        action: el[0].action,
-        code: el[el.length - 1].code,
-        t: el[el.length - 1].t,
-        attempt: count,
-      };
-    });
-    let attsummary = {};
-    if (finalObj) {
-      for (let i = 0; i < finalObj.length; i++) {
-        let curr = finalObj[i].action;
-        if (!attsummary[curr]) {
-          attsummary[curr] = {
-            attempt: 0,
-          };
-        } else attsummary[curr].attempt++;
-      }
+  const tasks = DB[userid]
+  if(!tasks) return tasksDoneToday
+
+  const currentTime = Date.now()
+  try {
+    for(const task in tasks) {
+      let current_action = null
+      tasks[task].steps.map(t => {
+        if(t.data.action) current_action = t.data.action
+        if(!tasksDoneToday[current_action]) tasksDoneToday[current_action] = 0
+        if(t.data.code != 202) return
+        const tt = (new Date(t.t)).getTime()
+        const hours = Math.floor((currentTime - tt) / 3600000);
+        if(hours < 24) tasksDoneToday[current_action] += 1
+      })
     }
-    
-  return attsummary;
+    return tasksDoneToday
+  } catch (error) {
+    return {}
+  }
+  
 }
-
 module.exports = {
   start,
   dbStr,

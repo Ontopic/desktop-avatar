@@ -381,27 +381,30 @@ function e(ui, log, store) {
        tbl.c(hdr);
       let summary = {};
       let userTasksPerDay = data.getTasksPerDay(ui.id)
-      for (let i = 0; i < userReport.length; i++) {
-        let curr = userReport[i].steps[0].data.action;
-        if (!summary[curr]) {
-          summary[curr] = {
-            assigned: 1,
-            inprogress: 0,
-            success: 0,
-            failure: 0,
-          };
-        } else summary[curr].assigned++;
-        let status = status_1(userReport[i].taskid);
-        if (status) summary[curr][status]++;
+      if(userTasksPerDay){
+        for (let i = 0; i < userReport.length; i++) {
+          let curr = userReport[i].steps[0].data.action;
+          if (!summary[curr]) {
+            summary[curr] = {
+              assigned: 1,
+              inprogress: 0,
+              success: 0,
+              failure: 0,
+            };
+          } else summary[curr].assigned++;
+          let status = status_1(userReport[i].taskid);
+          if (status) summary[curr][status]++;
+        }
       }
-     
-      for (const property in summary) {
-        summary[property].attempt = userTasksPerDay[property].attempt
-      }
-
       
+     if(summary){
+      for (const property in summary) {
+        summary[property].attempt = userTasksPerDay[property]
+      }
       for (let action in summary) {
         let name = h("td", action);
+        let left = schedule.dailyLimitHit(action)-summary[action].attempt
+        if(left<=0) left = 0;
         getTaskname(action)
           .then((n) => (name.innerText = n))
           .catch((e) => console.error(e));
@@ -413,10 +416,11 @@ function e(ui, log, store) {
             h("td", summary[action].success),
             h("td", summary[action].failure),
             h("td", schedule.dailyLimitHit(action)),
-            h("td", (schedule.dailyLimitHit(action)-summary[action].attempt)),
+            h("td", left),
           ])
         );
       }
+     }
     }
   }
 
