@@ -81,7 +81,7 @@ function linkedinCredsFile(userid){
  * Return the location of a dumpfile for errors.
  */
 function dmp() {
-  let t = (new Date()).toISOString()
+  let t = (new Date()).toISOString().replace(/[\/\\:]/g, "_")
   return path.join(home(), `dmp-${t}.html`)
 }
 
