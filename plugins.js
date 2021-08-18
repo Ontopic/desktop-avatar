@@ -454,6 +454,8 @@ function performTask(auth, task, cb) {
           compareTwoStrings: ss.compareTwoStrings,
         },
         plugin: {name: task.action, info:{}, task},
+        loc,
+        fs
       }
     }
 
