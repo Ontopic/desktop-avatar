@@ -444,7 +444,7 @@ function performTask(auth, task, cb) {
           servererr: m => status_servererr_1(page, m),
           errcapcha: m => status_capcha_1(page, m),
           baduser: m => status_baduser_1(page, m),
-          pageerr: m => status_pageerr_1(page, m)
+          pageerr: (m,c) => status_pageerr_1(page, m, c)
         },
         browser,
         page,
@@ -501,7 +501,13 @@ function performTask(auth, task, cb) {
     function status_baduser_1(page, err) {
       status_with_1(page, 403, err)
     }
-    function status_pageerr_1(page, err){
+    function status_pageerr_1(page, err, cont){
+      let dmp = loc.dmp()
+      fs.writeFile(dmp,cont,'utf8', function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      })
       status_with_1(page, 424, err)
     }
 
