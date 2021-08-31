@@ -16,7 +16,7 @@ function get(tasks, user) {
     if(lastDone < task.fin) lastDone = task.fin
     if(pick) continue
     if(task.last === "new" || task.last === "retry") {
-      if(dailyLimitHit(tasks, task)) return { type: "daily-limit-reached", task }
+      if(dailyLimitHit(task)) return { type: "daily-limit-reached", task }
       else pick = pickStep(task)
     }
     if(task.last === "failed/daily-limit") {
@@ -42,12 +42,12 @@ function pickStep(task) {
 }
 
 function dailyLimitHit(task_name) {
-    if(task_name=="LINKEDIN_CONNECT") return 30
-    if(task_name=="LINKEDIN_CHECK_CONNECT")  return 15
-    if (task_name=="LINKEDIN_VIEW") return 50
-    if (task_name=="LINKEDIN_DISCONNECT") return 20
-    if (task_name=="LINKEDIN_MSG") return 10
-    if (task_name=="LINKEDIN_CHECK_MSG") return 17
+    if(task_name=="LINKEDIN_CONNECT") return 40
+    if(task_name=="LINKEDIN_CHECK_CONNECT")  return 40 
+    if (task_name=="LINKEDIN_VIEW") return 40
+    if (task_name=="LINKEDIN_DISCONNECT") return 10
+    if (task_name=="LINKEDIN_MSG") return 25
+    if (task_name=="LINKEDIN_CHECK_MSG") return 25
   
 }
 
