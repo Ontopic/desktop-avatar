@@ -235,7 +235,8 @@ function getLogger(task, cb) {
  */
 function performTask(auth, task, cb) {
   getLogger(task, (err, log) => {
-    if(err) return cb(err)
+    if(!task.linkedInURL) return cb("Linkedin URL Missing!!")
+    else if(err) return cb(err)
     users.browser(users.get(task.userId)).then(browser => {
       const cfg = {
         timeout: task.timeout || undefined
