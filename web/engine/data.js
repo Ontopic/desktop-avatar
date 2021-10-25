@@ -248,6 +248,23 @@ More details should be available in the log file: ${log.getName()}
  *       LINKEDIN_CONNECT: 5,
  *       ...
  *    }
+ *
+ * problem/
+ *   Need to find the tasks that are completed.
+ *   considering one linkedin  task as one view for the following
+ *   cases 
+ *   
+ *   i) Success 
+ *   ii)Page Updation 
+ *   iii) Timeout Error (Timeout may happen before loading of lead but staying on safer side) 
+ *   Even though two of the cases are errors that might involve visiting of target leads page.
+ *  
+ * solution/
+ *   We just need to consider the tasks that are 'closed' as mentioned above. 
+ *   Why?
+ *   The tasks will be either completed with Success or it will failed.
+ *   If task is success or its failed with with above errors, then we can consider that as an activity for the day.
+ *   
  */
 function getTasksPerDay(userid) {
   const tasksDoneToday = {}
@@ -258,17 +275,18 @@ function getTasksPerDay(userid) {
   const currentTime = Date.now()
   for(const taskid in tasks) {
     let current_action = null
-    tasks[taskid].steps.map(t => {
-      if(!t.data) return
-      if(t.data.action) current_action = t.data.action
-      if(!current_action) return
-      if(!tasksDoneToday[current_action]) tasksDoneToday[current_action] = 0
-      if(t.data.code != 202) return
-      if(!t.t) return
-      const tt = (new Date(t.t)).getTime()
-      const hours = Math.floor((currentTime - tt) / 3600000);
-      if(hours < 24) tasksDoneToday[current_action] += 1
-    })
+    let status_list =[200,424,504] 
+    if(tasks[taskid].last == "closed"){
+      tasks[taskid].steps.map(t => {
+        if(t.data.action) current_action = t.data.action
+        if(!tasksDoneToday[current_action]) tasksDoneToday[current_action] = 0
+        if(status_list.includes(t.data.code)) {
+            const tt = (new Date(t.t)).getTime()
+            const hours = Math.floor((currentTime - tt) / 3600000);
+            if((hours<24)) tasksDoneToday[current_action] += 1
+        }
+      })
+    }
   }
   return tasksDoneToday
 }
