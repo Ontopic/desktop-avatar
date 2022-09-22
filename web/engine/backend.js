@@ -81,6 +81,33 @@ function sendStatuses(log, store, user, statusUpdates, cb) {
 
 }
 
+function sendNavSync(log, store, user, status, cb) {
+  log("trace/backend/sendnavsync")
+  const serverURL = store.get("settings.serverURL")
+  let p = `${serverURL}/dapp/v2/navsync`
+  let result = {
+    id: status.id,
+    seed: user.seed,
+    authKey: user.authKey,
+    navSyncUpdates :[
+      {
+        id : status.id,
+        listID: status.syncdata.listID,
+        status: status.status,
+        leadDetails: status.syncdata.leaddetails,
+        accDetails: status.syncdata.accdetails
+      }
+    ]
+  }
+  req.post(p, result, (err, resp) => {
+    if(err) {
+      log("err/sendnavsync", err)
+      return cb(false)
+    }
+    return cb(true)
+  })
+}
+
 function getTasks(log, store, cb) {
   log("trace/backend/gettasks")
   const ui = store.get("user.ui")
@@ -110,4 +137,5 @@ module.exports = {
   getUsers,
   sendStatuses,
   getTasks,
+  sendNavSync
 }

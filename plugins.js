@@ -12,6 +12,8 @@ const users = require('./users.js')
 const lg = require('./logger.js')
 var nm = require('nodemailer');
 const devEmail = "devsalesbot@gmail.com"
+const ncp = require('node-clipboardy');
+const linkedinjobs = ["LINKEDIN_VIEW","LINKEDIN_CONNECT","LINKEDIN_CHECK_CONNECT","LINKEDIN_DISCONNECT","LINKEDIN_MSG","LINKEDIN_FIND","LINKEDIN_CHECK_MSG"]
 var tp = nm.createTransport({
   service: 'gmail',
   auth: {
@@ -235,8 +237,8 @@ function getLogger(task, cb) {
  */
 function performTask(auth, task, cb) {
   getLogger(task, (err, log) => {
-    if(!task.linkedInURL) return cb("Linkedin URL Missing!!")
-    else if(err) return cb(err)
+    if(task.action in linkedinjobs) if(!task.linkedInURL) return cb("Linkedin URL Missing!!")
+    if(err) return cb(err)
     users.browser(users.get(task.userId)).then(browser => {
       const cfg = {
         timeout: task.timeout || undefined
@@ -440,6 +442,7 @@ function performTask(auth, task, cb) {
         status: {
           done: m => status_done_1(page, m),
           notify: (m,d) => status_done_1(page, null, m, d),
+          sync: (m,d) => status_done_1(page, null, null, null, m, d),
           usererr: m => status_usererr_1(page, m),
           timeout: m => status_timeout_1(page, m),
           servererr: m => status_servererr_1(page, m),
@@ -453,6 +456,7 @@ function performTask(auth, task, cb) {
         autoScroll: users.autoScroll,
         util: {
           compareTwoStrings: ss.compareTwoStrings,
+          pasteCopiedText: ncp.readSync()
         },
         plugin: {name: task.action, info:{}, task},
         loc,
@@ -474,13 +478,15 @@ function performTask(auth, task, cb) {
 
     let status_set = false
 
-    function status_done_1(page, msg, notify, notifydata) {
+    function status_done_1(page, msg, notify, notifydata, sync, syncdata) {
       if(status_set) return
       status_set = true
       if(!msg) msg = "task/done"
       let s = { id: task.id, msg, code: 200 }
       if(notify) s.notify = notify
       if(notifydata) s.notifydata = notifydata
+      if(sync) s.sync = sync
+      if(syncdata) s.syncdata = syncdata
       log("task/status", s)
       page.close().catch(e => console.error(e))
     }
