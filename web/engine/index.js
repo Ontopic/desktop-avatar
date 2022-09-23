@@ -182,6 +182,18 @@ function run(log, store) {
       const statuses = get_pending_status_updates_1(tasks)
       if(!statuses || !statuses.length) return send_update_1(ndx+1)
       chat.say(store, `Sending updates to server...`)
+      statuses.forEach((status, index,arr)=>{
+        if(status.sync) {
+        backend.sendNavSync(log, store, user, status, ok=>{
+          data.log("task/status",{
+            id: status.id,
+            msg: "task/completed",
+            code: 202
+          },user.id,log,store)
+        })
+        arr.splice(index,1)
+        }
+      })
       backend.sendStatuses(log, store, user, statuses, ok => {
         if(ok) markCompleted(user.id, statuses)
         send_update_1(ndx+1)
@@ -214,6 +226,10 @@ function run(log, store) {
           else delete updt.notify
           if(task_.data.notifydata) updt.notifydata = task_.data.notifydata
           else delete updt.notifydata
+          if(task_.data.sync) updt.sync = task_.data.sync
+          else delete updt.sync
+          if(task_.data.syncdata) updt.syncdata = task_.data.syncdata
+          else delete updt.syncdata
         }
         statuses.push(updt)
       }
