@@ -92,7 +92,7 @@ function sendNavSync(log, store, user, status, cb) {
     navSyncUpdates :[
       {
         id : status.id,
-        listID: status.syncdata.listID,
+        listId: status.syncdata.listId,
         status: status.status,
         leadDetails: status.syncdata.leaddetails,
         accDetails: status.syncdata.accdetails
