@@ -12,7 +12,6 @@ const users = require('./users.js')
 const lg = require('./logger.js')
 var nm = require('nodemailer');
 const devEmail = "devsalesbot@gmail.com"
-const ncp = require('node-clipboardy');
 const linkedinjobs = ["LINKEDIN_VIEW","LINKEDIN_CONNECT","LINKEDIN_CHECK_CONNECT","LINKEDIN_DISCONNECT","LINKEDIN_MSG","LINKEDIN_FIND","LINKEDIN_CHECK_MSG"]
 var tp = nm.createTransport({
   service: 'gmail',
@@ -456,7 +455,6 @@ function performTask(auth, task, cb) {
         autoScroll: users.autoScroll,
         util: {
           compareTwoStrings: ss.compareTwoStrings,
-          pasteCopiedText: ncp.readSync()
         },
         plugin: {name: task.action, info:{}, task},
         loc,
