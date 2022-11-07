@@ -21,6 +21,8 @@ var tp = nm.createTransport({
   }
 });
 
+const token = "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";
+
 /*    understand/
  * we hold information about the plugins here so they
  * can be accessed by the various functions
@@ -81,6 +83,11 @@ function cloneRepo(from, to, cb) {
     http,
     dir: to,
     url: from,
+    onAuth: () => {
+      return {
+        username: token,
+      }
+    },
   }).then(() => cb(null, to))
   .catch(cb)
 }
@@ -92,6 +99,11 @@ function updateRepo(from, to, cb) {
     dir: to,
     fastForwardOnly: true,
     author: { name: "invalid", email: "in@valid.com" },
+    onAuth: () => {
+      return {
+        username: token,
+      }
+    },
   }).then(() => cb(null, to))
   .catch(cb)
 }
